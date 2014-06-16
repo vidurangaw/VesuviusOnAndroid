@@ -1,31 +1,7 @@
 package com.vpowerrc.vesuviusserver;
-
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.InputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
-
-
-
-
-
-
 import android.app.ProgressDialog;
 import android.content.Context;
-
-
-
-
-
-
-
 import com.vpowerrc.vesuviusserver.Server;
-
-import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
@@ -33,7 +9,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
-import android.util.Log;
+
 
 public class MainActivity extends ActionBarActivity{
 	
