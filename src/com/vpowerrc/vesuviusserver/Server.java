@@ -38,7 +38,7 @@ public class Server {
 	public static String TAG = "Vesuvius Server";
 	public static Context appContext;
 	public static ProgressDialog progressBar;
-	private static String serverPort="80";
+	public static String serverPort="8080";
 	
 	
 	public static void install(ProgressDialog progressBar){
@@ -53,7 +53,11 @@ public class Server {
 	
 	public static void afterInstall(){
 		
-		
+		restoreOrCreateServerData();
+		restoreConfiguration("lighttpd.conf");
+		restoreConfiguration("php.ini");
+		restoreConfiguration("mysql.ini");
+		setPermission();
 		
 	}
 
@@ -145,8 +149,9 @@ public class Server {
 	final private static void restoreConfiguration(String fileName) {
 
 		File isConf = new File(getHttpDirectory() + "/conf/" + fileName);
-		if (!isConf.exists()) {
-
+		if (isConf.exists()) {
+			isConf.delete();
+		}
 			try {
 
 				String mString;
@@ -179,7 +184,7 @@ public class Server {
 				Log.e(TAG, "Unable to copy " + fileName + " from assets", e);
 
 			}
-		}
+		
 
 	}
 	
@@ -219,11 +224,7 @@ public class Server {
 	public static void start() {
 		// TODO Auto-generated method stub
 		System.out.println("ON");
-		restoreOrCreateServerData();
-		restoreConfiguration("lighttpd.conf");
-		restoreConfiguration("php.ini");
-		restoreConfiguration("mysql.ini");
-		setPermission();
+		
 		
 		String[] serverCmd = { getAppDirectory() + "/lighttpd", "-f",
 				getHttpDirectory() + "/conf/lighttpd.conf", "-D"

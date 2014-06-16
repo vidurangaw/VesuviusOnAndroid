@@ -17,6 +17,8 @@ import java.net.URLConnection;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
@@ -49,7 +51,101 @@ public class Vesuvius  extends Activity {
 	
 	public static void afterInstall(){
 		Log.e(TAG, "after install");
-		Vesuvius.writeSahanaConf();
+		writeSahanaConf();
+		createDatabase();
+		convertHtacessToLighttpd();
+	}
+	
+	public static void convertHtacessToLighttpd(){
+		
+		
+		File htaccessFile = new File(getVesuviusDirectory()+"www/.htaccess");
+		File lighttpdConfFile = new File(getHttpDirectory()+"conf/lighttpd.conf");
+		
+		
+		
+		if (htaccessFile.exists()){			
+			try {
+	            //open .htaccess file 		           
+				FileReader fr = new FileReader(htaccessFile);
+	            BufferedReader br = new BufferedReader(fr);
+	            
+	             //holds a line of input
+	            String iLine;  	
+	            
+	            //holds a line of output
+	            String oLine = null;
+	            
+	            //holds a whole output
+	            String outputText="";
+	            
+	            FileWriter fw = new FileWriter(lighttpdConfFile,true);
+	            BufferedWriter bw = new BufferedWriter(fw);
+	           
+	            bw.write("\n\n\n\n");
+	            bw.write("# Vesuvius configurations\n\n\n");	            
+	            bw.write("url.rewrite-once = (\n");
+	            //read .htaccess file
+	            
+	            outputText +="\"^/vesuvius/.*\\.(js|ico|gif|jpg|jpeg|png|css|)$\" => \"$0\",\n";
+	            
+	            while ((iLine = br.readLine()) != null ) {
+	               
+            	  
+	                if (iLine.contains("RewriteRule ^")) {	
+	                	
+	 	               	
+	 	               	iLine = iLine.replaceAll("\\s+", " ");
+	                	
+	                	/*
+	                	Pattern pattern = Pattern.compile("\\^(.*?)\\$");
+	            		Matcher matcher = pattern.matcher( iLine);
+	            		if (matcher.find()) {
+	            			match = matcher.group(0); //prints /{item}/
+	            		} else {
+	            			Log.d(TAG, "match not found");
+	            		}
+	            		
+	            		pattern = Pattern.compile("\\s(.*?)\\s\\[");
+	            		matcher = pattern.matcher( iLine);
+	            		if (matcher.find()) {
+	            		    url = matcher.group(1); //prints /{item}/
+	            		} else {
+	            			Log.d(TAG, "url not found");
+	            		}
+	            		*/
+	 	               	String[] splitedLines = iLine.split("\\s+");
+	 	                
+	 	               	splitedLines[1] = splitedLines[1].substring(1);
+            			oLine = "\"^/vesuvius/"+splitedLines[1]+"\" => \"/vesuvius/"+splitedLines[2]+"\",\n";
+            			
+            			outputText += oLine;
+	            	
+	                }                
+	               	             
+	            }	     
+	            
+	            //outputText +="\".*\\.(js|ico|gif|jpg|png|css|)$\" => \"$0\",\n";
+	            //write to lighttpd.conf
+	            outputText = outputText.replaceAll(",\n$", "\n");
+	            bw.write(outputText+")\n");
+	            
+	            bw.write("alias.url += (\"/vesuvius\" => http_dir + \"/www/vesuvius-master/vesuvius/www\")");
+	            
+	            Log.d(TAG, outputText);
+	            br.close();            
+	            bw.close();
+	            Log.e(TAG, "lighttpd.conf updated");	            	
+	            
+	            
+	        } catch (FileNotFoundException e) {
+	            e.printStackTrace();
+	        } catch (IOException e) {
+	            e.printStackTrace();
+	        }	
+			
+		}
+		
 		
 	}
 	public static void createDatabase(){
@@ -67,7 +163,7 @@ public class Vesuvius  extends Activity {
 	*/		
 		try {
 			
-	        URL phpUrl = new URL("http://localhost:8080/scripts/create_database.php");
+	        URL phpUrl = new URL("http://localhost:"+Server.serverPort+"/scripts/create_database.php");
 	        URLConnection urlCon = phpUrl.openConnection();
 	        BufferedReader br = new BufferedReader(new InputStreamReader(urlCon.getInputStream()));
 	        String line;
@@ -83,6 +179,8 @@ public class Vesuvius  extends Activity {
 		
 		
 	}
+	
+	
 	public static void writeSahanaConf() {		
 		
 		String confPath = getVesuviusDirectory()+"conf/";		
@@ -99,7 +197,7 @@ public class Vesuvius  extends Activity {
 		}
 		
 		if (exampleConfFile.exists()){
-			Log.e(TAG, "rename yes");
+			
 			try {
 	            //open sahana.conf.example file 		           
 				FileReader fr = new FileReader(exampleConfFile);
@@ -114,7 +212,7 @@ public class Vesuvius  extends Activity {
 	            
 	            //read sahana.conf.example file
 	            while ((line = br.readLine()) != null ) {
-            	   Log.d(TAG, line);
+            	   
 	                if (line.equals("$conf['db_name'] = \"\";")) {	                	
 	                	line = line.replace("\"\"", "\"vesuvius\"");
 	                }
@@ -139,8 +237,7 @@ public class Vesuvius  extends Activity {
 	        }	
 			
 		}
-		else
-			Log.e(TAG, "rename no");    
+		  
 		
 
 	}

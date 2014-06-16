@@ -36,13 +36,15 @@ public class HomeFragment extends Fragment {
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	
-        // Inflate the layout for this fragment    
+        //  Inflate the layout for this fragment    
     	View view = inflater.inflate(R.layout.fragment_home, container, false);
     	
     	  
     	ToggleButton toggle = (ToggleButton) view.findViewById(R.id.serverToggleButton);
     	
-    	Vesuvius.createDatabase();
+    	
+    	Server.afterInstall();
+    	Vesuvius.afterInstall();
     	
     	toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
     	    
