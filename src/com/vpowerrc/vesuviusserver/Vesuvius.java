@@ -85,13 +85,15 @@ public class Vesuvius  extends Activity {
 	            //write to lighttpd.conf
 	            bw.write("\n\n\n\n");
 	            bw.write("# Vesuvius configurations\n\n\n");	            
-	            bw.write("url.rewrite-once = (\n");           	            
 	            
-	            bw.write("\"^/vesuvius/test/(.*\\.(js|ico|gif|jpg|jpeg|png|css|))$\" => \"/vesuvius/$1\",\n");	            
+	            bw.write("url.rewrite-once = (\n");         	            
+	            
+	            bw.write("\"^/vesuvius/(?:(.*)/)?(theme.*\\.(js|ico|gif|jpg|jpeg|png|css|))$\" => \"/vesuvius/$2\",\n");	
+	            bw.write("\"^/vesuvius/(?:(.*)/)?(res.*\\.(js|ico|gif|jpg|jpeg|png|css|))$\" => \"/vesuvius/$2\"\n");
 	            //bw.write("\"^/vesuvius/(.+)/(.*\\.(js|ico|gif|jpg|jpeg|png|css|))$\" => \"/vesuvius/$1\",");
-	            bw.write("\"^/vesuvius/.*\\.(js|ico|gif|jpg|jpeg|png|css|)$\" => \"$0\",\n");
+	            //bw.write("\"^/vesuvius/.*\\.(js|ico|gif|jpg|jpeg|png|css|)$\" => \"$0\",\n");
 	            
-	            bw.write(")\n");	
+	            bw.write(")\n\n");	
 	            
 	            // read .htaccess file
 	            while ((iLine = br.readLine()) != null ) {
