@@ -74,65 +74,63 @@ public class Vesuvius  extends Activity {
 	            String iLine;  	
 	            
 	            //holds a line of output
-	            String oLine = null;
-	            
-	            //holds a whole output
-	            String outputText="";
+	            String oLine = null;           
+	            	            
+	            //holds repeat rules
+	            String repeatOutputText="";
 	            
 	            FileWriter fw = new FileWriter(lighttpdConfFile,true);
 	            BufferedWriter bw = new BufferedWriter(fw);
-	           
+	            
+	            //write to lighttpd.conf
 	            bw.write("\n\n\n\n");
 	            bw.write("# Vesuvius configurations\n\n\n");	            
-	            bw.write("url.rewrite-once = (\n");
-	            //read .htaccess file
+	            bw.write("url.rewrite-once = (\n");           	            
 	            
-	            outputText +="\"^/vesuvius/.*\\.(js|ico|gif|jpg|jpeg|png|css|)$\" => \"$0\",\n";
+	            bw.write("\"^/vesuvius/test/(.*\\.(js|ico|gif|jpg|jpeg|png|css|))$\" => \"/vesuvius/$1\",\n");	            
+	            //bw.write("\"^/vesuvius/(.+)/(.*\\.(js|ico|gif|jpg|jpeg|png|css|))$\" => \"/vesuvius/$1\",");
+	            bw.write("\"^/vesuvius/.*\\.(js|ico|gif|jpg|jpeg|png|css|)$\" => \"$0\",\n");
 	            
+	            bw.write(")\n");	
+	            
+	            // read .htaccess file
 	            while ((iLine = br.readLine()) != null ) {
 	               
-            	  
-	                if (iLine.contains("RewriteRule ^")) {	
+	            	if(iLine.contains("RewriteRule ^([^/][a-z0-9]+)/(.+)$")){
+	            		
+	            		repeatOutputText += "\"^/vesuvius/([^/][a-z0-9]+)/([^?]+)(?:\\?(.*))?$\" => \"/vesuvius/$2?shortname=$1&$3\"";
+	            	}
+	            	else if (iLine.contains("RewriteRule ^")) {	
 	                	
-	 	               	
+	                	
 	 	               	iLine = iLine.replaceAll("\\s+", " ");
 	                	
-	                	/*
-	                	Pattern pattern = Pattern.compile("\\^(.*?)\\$");
-	            		Matcher matcher = pattern.matcher( iLine);
-	            		if (matcher.find()) {
-	            			match = matcher.group(0); //prints /{item}/
-	            		} else {
-	            			Log.d(TAG, "match not found");
-	            		}
-	            		
-	            		pattern = Pattern.compile("\\s(.*?)\\s\\[");
-	            		matcher = pattern.matcher( iLine);
-	            		if (matcher.find()) {
-	            		    url = matcher.group(1); //prints /{item}/
-	            		} else {
-	            			Log.d(TAG, "url not found");
-	            		}
-	            		*/
-	 	               	String[] splitedLines = iLine.split("\\s+");
+	 	                String[] splitedLines = iLine.split("\\s+");
 	 	                
-	 	               	splitedLines[1] = splitedLines[1].substring(1);
-            			oLine = "\"^/vesuvius/"+splitedLines[1]+"\" => \"/vesuvius/"+splitedLines[2]+"\",\n";
-            			
-            			outputText += oLine;
-	            	
-	                }                
-	               	             
-	            }	     
+	            	    splitedLines[1] = splitedLines[1].substring(1);
+	            	    splitedLines[1] = splitedLines[1].substring(0, splitedLines[1].length()-1);
+	              
+	            		
+	            	   
+ 	            	    splitedLines[2] = splitedLines[2].substring(splitedLines[2].indexOf("?"));
+ 	            	
+ 	            	    oLine = "\"^/vesuvius/"+splitedLines[1]+"(?:\\?(.*))?$\" => \"/vesuvius/"+splitedLines[2]+"&$2\",\n";	
+ 	            	    
+ 	            	    
+ 	            	    repeatOutputText += oLine;
+	 	               
+	                }
+	            		 
+	            }
+	       	
 	            
-	            //outputText +="\".*\\.(js|ico|gif|jpg|png|css|)$\" => \"$0\",\n";
-	            //write to lighttpd.conf
-	            outputText = outputText.replaceAll(",\n$", "\n");
-	            bw.write(outputText+")\n");
+	            bw.write("url.rewrite-repeat = (\n");	            
+	            repeatOutputText = repeatOutputText.replaceAll(",\n$", "\n");            
+	            bw.write(repeatOutputText+")\n\n");	            
+	            
 	            
 	            bw.write("alias.url += (\"/vesuvius\" => http_dir + \"/www/vesuvius-master/vesuvius/www\")");
-	            
-	            Log.d(TAG, outputText);
+	            	            
 	            br.close();            
 	            bw.close();
 	            Log.e(TAG, "lighttpd.conf updated");	            	
@@ -213,15 +211,22 @@ public class Vesuvius  extends Activity {
 	            //read sahana.conf.example file
 	            while ((line = br.readLine()) != null ) {
             	   
-	                if (line.equals("$conf['db_name'] = \"\";")) {	                	
+	                if (line.contains("$conf['db_name'] =")) {	                	
 	                	line = line.replace("\"\"", "\"vesuvius\"");
 	                }
-	                if (line.equals("$conf['db_host'] = \"\";")) {	                	
+	                if (line.contains("$conf['db_host'] =")) {	                	
 	                	line = line.replace("\"\"", "\"localhost\"");
 	                }
-	                if (line.equals("$conf['db_user'] = \"\";")) {	                	
+	                if (line.contains("$conf['db_user'] =")) {	                	
 	                	line = line.replace("\"\"", "\"root\"");
 	                }
+	                if (line.contains("$conf['base_uuid'] = \"vesuvius.sahanafoundation.org/\"")) {
+	                	line = "$conf['base_uuid'] = $_SERVER['SERVER_NAME'].\":\".$_SERVER['SERVER_PORT'].\"/vesuvius/\";";	                
+	                }
+	                if (line.contains("#$conf['https']")) {
+	                	line = line.replace("#", "");	                
+	                }
+	                
 	                //write to sahana.conf
 	                bw.write(line+"\n");
 	            }      
