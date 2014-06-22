@@ -6,8 +6,11 @@ import java.io.File;
 
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
+
 
 
 
@@ -99,6 +102,33 @@ public class Server {
 			return false;
 		
 		}
+	}
+	
+	protected static boolean isServerRunning() throws IOException {
+		InputStream is;
+		java.io.BufferedReader bf;
+		boolean isRunning = false;
+		try {
+			is = Runtime.getRuntime().exec("ps").getInputStream();
+			bf = new java.io.BufferedReader(new java.io.InputStreamReader(is));
+
+			String r;
+			while ((r = bf.readLine()) != null) {
+				if (r.contains("lighttpd")) {
+					isRunning = true;
+					break;
+				}
+
+			}
+			is.close();
+			bf.close();
+
+		} catch (IOException e) {
+			e.printStackTrace();
+
+		}
+		return isRunning;
+
 	}
 	
 	final static private void setPermission() {
