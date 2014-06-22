@@ -4,7 +4,11 @@ package com.vpowerrc.vesuviusserver;
 
 import java.io.IOException;
 
+import com.omt.remote.util.net.WifiApControl;
+
 import android.app.ProgressDialog;
+import android.content.Context;
+import android.net.wifi.WifiManager;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
@@ -58,6 +62,7 @@ public class HomeFragment extends Fragment {
 			e.printStackTrace();
 		}
     	
+    	
     	toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
     	    
     		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -68,12 +73,30 @@ public class HomeFragment extends Fragment {
 
     	    			addProgresBar("Installing Vesuvius");    	    			
     	    			Vesuvius.install(progressBar);
-    	    		}
-    	        	
+    	    		}    	        	
     	        	Log.e(TAG, "Server start");
     	        	Server.start();
+    	        	final WifiApControl apControl = Server.turnOnOffHotspot(true);  
     	        	
-    	     
+    	        	
+    	        	Thread t = new Thread() {
+    	                @Override
+    	                public void run() {
+    	                    try {
+    	                        //check if hotspot started
+    	                        while (!apControl.isWifiApEnabled()) {    	                           
+    	                            Thread.sleep(1000);                     
+    	                        }
+    	                        if(apControl.isWifiApEnabled()){
+    	                        Log.e(TAG, apControl.getIpAddress());
+    	                        }
+
+    	                    } catch (Exception e) {
+    	                    }
+    	                }
+    	            };
+    	            t.start();
+    	        	
     	        
     	        } else {
     	            // The toggle is disabled

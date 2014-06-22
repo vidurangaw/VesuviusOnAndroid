@@ -26,9 +26,14 @@ import java.util.zip.ZipInputStream;
 
 
 
+
+
+import com.omt.remote.util.net.WifiApControl;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.net.wifi.WifiManager;
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.TextView;
@@ -104,6 +109,18 @@ public class Server {
 		}
 	}
 	
+	public static WifiApControl turnOnOffHotspot( boolean isTurnToOn) {
+        WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
+        WifiApControl apControl = WifiApControl.getApControl(wifiManager);
+        if (apControl != null) {        	
+                 // TURN OFF YOUR WIFI BEFORE ENABLE HOTSPOT
+            if (wifiManager.isWifiEnabled() && isTurnToOn) {
+            	wifiManager.setWifiEnabled(false);
+            }
+            apControl.setWifiApEnabled(apControl.getWifiApConfiguration(),isTurnToOn);
+        }
+        return apControl;
+    }
 	protected static boolean isServerRunning() throws IOException {
 		InputStream is;
 		java.io.BufferedReader bf;
