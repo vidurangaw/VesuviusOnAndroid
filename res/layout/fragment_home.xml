@@ -1,17 +1,17 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-     >
+    android:layout_height="match_parent" >
 
     <ImageView
-        android:id="@+id/imageView1"
-        android:layout_width="250dp"
-        android:layout_height="50dp"
-        android:layout_alignParentBottom="true"
+        android:id="@+id/imageView2"
+        android:layout_width="300dp"
+        android:layout_height="150dp"
+        android:layout_alignParentTop="true"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="14dp"
-        android:src="@drawable/sahanalogo" />
+        android:layout_marginTop="30dp"
+        android:src="@drawable/vesuvius_logo" />
+
 
     <TextView
         android:id="@+id/textView1"
@@ -19,30 +19,32 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/imageView2"
         android:layout_centerHorizontal="true"
-        android:layout_marginTop="16dp"
+        android:layout_marginTop="14dp"
         android:text="@string/vesuvius_name"
         android:textAlignment="center"
         android:textColor="@color/custom_blue"
         android:textSize="30sp" />
-
+    
     <ToggleButton
         android:id="@+id/serverToggleButton"
         android:layout_width="175dp"
         android:layout_height="wrap_content"
         android:layout_above="@+id/imageView1"
         android:layout_centerHorizontal="true"
-        android:layout_marginBottom="21dp"
+        android:layout_marginBottom="23dp"
         android:textOff="Start Server"
         android:textOn="Stop Server" />
 
     <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="250dp"
-        android:layout_height="120dp"
-        android:layout_alignParentTop="true"
-        android:layout_alignRight="@+id/textView1"
-        android:layout_marginTop="24dp"
-        android:src="@drawable/vesuvius_logo" />
+        android:id="@+id/imageView1"
+        android:layout_width="175dp"
+        android:layout_height="60dp"
+        android:layout_alignLeft="@+id/serverToggleButton"
+        android:layout_alignParentBottom="true"
+        android:layout_marginBottom="10dp"
+        android:src="@drawable/sahanalogo" />
+
+    
 
 </RelativeLayout>
  <!-- android:textColor="@color/custom_grey" -->
