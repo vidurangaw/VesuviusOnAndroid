@@ -2,6 +2,8 @@ package com.vpowerrc.vesuviusserver;
 
 
 
+import java.io.IOException;
+
 import android.app.ProgressDialog;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -37,14 +39,24 @@ public class HomeFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	
         //  Inflate the layout for this fragment    
-    	View view = inflater.inflate(R.layout.fragment_home, container, false);
-    	
+    	View view = inflater.inflate(R.layout.fragment_home, container, false);    	
     	  
-    	ToggleButton toggle = (ToggleButton) view.findViewById(R.id.serverToggleButton);
-    	
+    	ToggleButton toggle = (ToggleButton) view.findViewById(R.id.serverToggleButton);    	
     	
     	Server.afterInstall();
     	Vesuvius.afterInstall();
+    	
+    	//set toggle button to true if server is alreayd running
+    	try {
+			if(Server.isServerRunning()){				
+				toggle.setChecked(true);
+				Log.e(TAG, "running");
+				Server.stop();
+				Server.start();
+			}
+		} catch (IOException e) {			
+			e.printStackTrace();
+		}
     	
     	toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
     	    
