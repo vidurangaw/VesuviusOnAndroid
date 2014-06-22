@@ -35,35 +35,13 @@ public class MainActivity extends ActionBarActivity{
 		StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 		StrictMode.setThreadPolicy(policy);
 		
-		// Image task will only be done AFTER textViewTask is done
-		
+				
 		if(!Server.checkIfInstalled()){
 			addProgresBar("Installing Web Server and Database Server");
 			Server.install(progressBar);
 		}	//
 			
-			
-			//vesuvius_unzipper.executeOnExecutor(AsyncTask.SERIAL_EXECUTOR);
-			
-			//new AsynTask1()params);
-			
-			
-			//servers_unzipper.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"data.zip",Server.getAppDirectory() + "/");
-			
-			//addProgresBar("Installing Vesuvius Application");
-			//UnzipperAsync vesuvius_unzipper = new UnzipperAsync(appContext,progressBar);
-			
-			//vesuvius_unzipper.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR,"vesuvius.zip",Server.getHttpDirectory() + "/www/");
-			
-					
-		//}
-		
-		//UnzipperAsync unzipper_async = new UnzipperAsync(appContext,progressBar);
-		
-		
-		
-		//Server server = new Server();
-		
+				
 		//ActionBar gets initiated
 		ActionBar actionbar = getSupportActionBar();
 		//Tell the ActionBar we want to use Tabs.
