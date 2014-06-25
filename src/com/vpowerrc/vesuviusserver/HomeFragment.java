@@ -7,15 +7,9 @@ import java.io.IOException;
 import com.omt.remote.util.net.WifiApControl;
 
 import android.app.Activity;
-import android.app.Notification;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
-import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.net.wifi.WifiManager;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -23,7 +17,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 
@@ -56,7 +49,6 @@ public class HomeFragment extends Fragment {
     	
     	//Server.afterInstall();
     	//Vesuvius.afterInstall();
-    	
     	
     	// create notification  	
 		final Intent notificationIntent = new Intent(getActivity(), VesuviusNotificationService.class);
@@ -95,9 +87,7 @@ public class HomeFragment extends Fragment {
 	                }
 	            };
 	            t.start();	            
-				Log.e(TAG, "running");
-				Server.stop();
-				Server.start();
+				Log.e(TAG, "running");			
 				
 				// show notification 
 				getActivity().startService(notificationIntent);
@@ -120,8 +110,7 @@ public class HomeFragment extends Fragment {
     	    		}    	        	
     	        	Log.e(TAG, "Server start");
     	        	Server.start();    	        	
-    	        	// show notification
-    	        	getActivity().startService(notificationIntent);    	        	
+    	        	// show notification    	        	       	
     	        	
     	        	final WifiApControl apControl = Server.turnOnOffHotspot(true);     	        	
     	        	
@@ -141,6 +130,7 @@ public class HomeFragment extends Fragment {
     		                            public void run() {
     		                            	TextView text = (TextView) view.findViewById(R.id.textView2);
     		    	                        text.setText("Vesuvius is running on \n\nhttp://"+ipAddress+":"+Server.serverPort+"/vesuvius");
+    		    	                        getActivity().startService(notificationIntent);    	 
     		                            }
     		                        });
     	                        }
@@ -155,11 +145,12 @@ public class HomeFragment extends Fragment {
     	        } else {
     	            // The toggle is disabled
     	        	
+    	        	TextView text = (TextView) view.findViewById(R.id.textView2);
+                    text.setText("");
     	        	Server.turnOnOffHotspot(false);  
     	        	Log.e(TAG, "Server stop");
     	        	Server.stop();
-    	        	TextView text = (TextView) view.findViewById(R.id.textView2);
-                    text.setText("");
+    	        	
                     
                     // hide notification
                     getActivity().stopService(notificationIntent);

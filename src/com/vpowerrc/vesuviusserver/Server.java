@@ -1,44 +1,14 @@
 package com.vpowerrc.vesuviusserver;
 
 import java.io.File;
-
-
-
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 import com.omt.remote.util.net.WifiApControl;
-
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.net.wifi.WifiManager;
-import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.TextView;
-
-
 
 public class Server {
 	
@@ -50,17 +20,13 @@ public class Server {
 	
 	
 	public static void install(ProgressDialog progressBar){
-		UnzipperAsync server_unzipper = new UnzipperAsync(appContext,progressBar,Server.class.getName());
-		
-		server_unzipper.execute("data.zip",Server.getAppDirectory() + "/");
-		
-		
-		
+		UnzipperAsync server_unzipper = new UnzipperAsync(appContext,progressBar,Server.class.getName());		
+		server_unzipper.execute("data.zip",Server.getAppDirectory() + "/");				
 	}
 	
 	
 	public static void afterInstall(){
-		
+
 		restoreOrCreateServerData();
 		restoreConfiguration("lighttpd.conf");
 		restoreConfiguration("php.ini");

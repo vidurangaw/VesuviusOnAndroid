@@ -23,12 +23,11 @@ public class MainActivity extends ActionBarActivity{
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
-		appContext = MainActivity.this;
-		
+		appContext = this;		
 		
 		//set context in Server class
 		Server.setContext(appContext);
-		Vesuvius.setContext(appContext);
+		Vesuvius.setContext(appContext);		
 		
 		setContentView(R.layout.activity_main);
 			
@@ -37,9 +36,11 @@ public class MainActivity extends ActionBarActivity{
 		
 				
 		if(!Server.checkIfInstalled()){
+			
 			addProgresBar("Installing Web Server and Database Server");
 			Server.install(progressBar);
-		}	//
+		}
+		
 			
 				
 		//ActionBar gets initiated
