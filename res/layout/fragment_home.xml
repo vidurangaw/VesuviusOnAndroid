@@ -45,5 +45,17 @@
         android:layout_marginBottom="10dp"
         android:src="@drawable/sahanalogo" />
 
+    <TextView
+        android:id="@+id/textView2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/textView1"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="53dp"
+        android:text=""
+        android:gravity="center"
+        android:textAppearance="?android:attr/textAppearanceMedium"
+        android:textSize="20sp" />
+
 </RelativeLayout>
  <!-- android:textColor="@color/custom_grey" -->
