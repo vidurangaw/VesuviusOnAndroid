@@ -32,7 +32,7 @@ public class Server {
 		restoreConfiguration("php.ini");
 		restoreConfiguration("mysql.ini");
 		setPermission();
-		
+		Server.start();
 	}
 
 	public static void setContext(Context appContext) {

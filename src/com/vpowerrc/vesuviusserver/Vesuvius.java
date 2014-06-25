@@ -10,11 +10,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
+
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.AssetManager;
-
 import android.util.Log;
 
 public class Vesuvius  extends Activity {
@@ -38,6 +38,8 @@ public class Vesuvius  extends Activity {
 		writeSahanaConf();		
 		convertHtacessToLighttpd();
 		createDatabase();
+		Server.stop();
+		Server.start();
 	}
 	
 	public static void copyPhpScript(){
