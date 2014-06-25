@@ -31,6 +31,7 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.database.SQLException;
 import android.os.StrictMode;
 import android.util.Log;
@@ -51,9 +52,41 @@ public class Vesuvius  extends Activity {
 	
 	public static void afterInstall(){
 		Log.e(TAG, "after install");
-		writeSahanaConf();
-		createDatabase();
+		
+		copyPhpScript();
+		writeSahanaConf();		
 		convertHtacessToLighttpd();
+		createDatabase();
+	}
+	
+	public static void copyPhpScript(){
+		
+		File mFile = new File(getHttpDirectory() + "www/scripts/");
+		if (!mFile.exists())
+			mFile.mkdir();
+		
+		try {
+			java.io.InputStream mStream = appContext.getAssets().open(
+					"create_database.php", AssetManager.ACCESS_BUFFER);
+			
+			java.io.BufferedWriter outputStream = new java.io.BufferedWriter(
+					new java.io.FileWriter(getHttpDirectory() + "www/scripts/"
+							+ "create_database.php"));
+			
+			int c;
+			while ((c = mStream.read()) != -1) {
+				outputStream.write(c);
+			}
+			outputStream.close();
+			mStream.close();
+			Log.e(TAG, "php script copied");
+			
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		
 	}
 	
 	public static void convertHtacessToLighttpd(){

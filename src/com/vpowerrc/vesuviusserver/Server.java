@@ -109,18 +109,22 @@ public class Server {
 		}
 	}
 	
-	public static WifiApControl turnOnOffHotspot( boolean isTurnToOn) {
+	public static WifiApControl turnOnOffHotspot(boolean isTurnToOn) {
         WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
         WifiApControl apControl = WifiApControl.getApControl(wifiManager);
         if (apControl != null) {        	
-                 // TURN OFF YOUR WIFI BEFORE ENABLE HOTSPOT
+            // TURN OFF YOUR WIFI BEFORE ENABLE HOTSPOT
             if (wifiManager.isWifiEnabled() && isTurnToOn) {
             	wifiManager.setWifiEnabled(false);
             }
+            
             apControl.setWifiApEnabled(apControl.getWifiApConfiguration(),isTurnToOn);
         }
         return apControl;
     }
+	
+	
+	
 	protected static boolean isServerRunning() throws IOException {
 		InputStream is;
 		java.io.BufferedReader bf;
@@ -176,20 +180,16 @@ public class Server {
 			mFile.mkdirs();
 
 		mFile = new File(getHttpDirectory() + "/www/");
-
 		if (!mFile.exists())
 			mFile.mkdir();
 
 		mFile = new File(getHttpDirectory() + "/logs/");
-
 		if (!mFile.exists())
 			mFile.mkdir();
+		
 		mFile = new File(getHttpDirectory() + "/tmp/");
-
 		if (!mFile.exists())
-			mFile.mkdir();
-
-		mFile = null;
+			mFile.mkdir();		
 
 	}
 	
