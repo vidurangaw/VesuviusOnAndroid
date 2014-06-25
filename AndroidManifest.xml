@@ -41,6 +41,12 @@
              android:screenOrientation="portrait" >
         </activity>
         
+        <service
+            android:name=".VesuviusNotificationService"            
+            android:label="Vesuvius server is running" >
+        </service>
+        
+        
     </application>
 
 </manifest>

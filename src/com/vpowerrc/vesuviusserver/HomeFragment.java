@@ -6,23 +6,30 @@ import java.io.IOException;
 
 import com.omt.remote.util.net.WifiApControl;
 
+import android.app.Activity;
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.wifi.WifiManager;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.CompoundButton;
+import android.widget.TextView;
+import android.widget.Toast;
 import android.widget.ToggleButton;
 
 
 public class HomeFragment extends Fragment {
 	public ProgressDialog progressBar;
-	public static String TAG = "Vesuvius Server";
-	
+	public static String TAG = "Vesuvius Server";	
 	public void addProgresBar(String message) {
 			
 			
@@ -42,21 +49,59 @@ public class HomeFragment extends Fragment {
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     	
-        //  Inflate the layout for this fragment    
-    	View view = inflater.inflate(R.layout.fragment_home, container, false);    	
+        // inflate the layout for this fragment    
+    	final View view = inflater.inflate(R.layout.fragment_home, container, false);    	
     	  
     	ToggleButton toggle = (ToggleButton) view.findViewById(R.id.serverToggleButton);    	
     	
-    	Server.afterInstall();
-    	Vesuvius.afterInstall();
+    	//Server.afterInstall();
+    	//Vesuvius.afterInstall();
     	
-    	//set toggle button to true if server is alreayd running
+    	
+    	// create notification  	
+		final Intent notificationIntent = new Intent(getActivity(), VesuviusNotificationService.class);
+
     	try {
 			if(Server.isServerRunning()){				
 				toggle.setChecked(true);
+				
+				final WifiApControl apControl = Server.turnOnOffHotspot(true);  
+	        	
+	        	
+	        	Thread t = new Thread() {
+	                @Override
+	                
+	                public void run() {
+	                    try {
+	                        //check if hotspot started
+	                        while (!apControl.isWifiApEnabled()) {    	                           
+	                            Thread.sleep(500);                     
+	                        }
+	                        if(apControl.isWifiApEnabled()){
+	                        final String ipAddress = apControl.getIpAddress();
+	                        Log.e(TAG, ipAddress);
+	                        	((Activity)getActivity()).runOnUiThread(new Runnable() {  
+		                            @Override
+		                            public void run() {
+		                            	TextView text = (TextView) view.findViewById(R.id.textView2);
+		    	                        text.setText("Vesuvius is running on \n\nhttp://"+ipAddress+":"+Server.serverPort+"/vesuvius");
+		                            }
+		                        });
+	                        
+	                        }
+
+	                    } catch (Exception e) {
+	                    }
+	                }
+	            };
+	            t.start();	            
 				Log.e(TAG, "running");
 				Server.stop();
 				Server.start();
+				
+				// show notification 
+				getActivity().startService(notificationIntent);
+
 			}
 		} catch (IOException e) {			
 			e.printStackTrace();
@@ -70,14 +115,15 @@ public class HomeFragment extends Fragment {
     	            // The toggle is enabled
     	        	if(!Vesuvius.checkIfInstalled()){
     	        		Log.e(TAG, "Instsll");
-
     	    			addProgresBar("Installing Vesuvius");    	    			
     	    			Vesuvius.install(progressBar);
     	    		}    	        	
     	        	Log.e(TAG, "Server start");
-    	        	Server.start();
-    	        	final WifiApControl apControl = Server.turnOnOffHotspot(true);  
+    	        	Server.start();    	        	
+    	        	// show notification
+    	        	getActivity().startService(notificationIntent);    	        	
     	        	
+    	        	final WifiApControl apControl = Server.turnOnOffHotspot(true);     	        	
     	        	
     	        	Thread t = new Thread() {
     	                @Override
@@ -85,10 +131,18 @@ public class HomeFragment extends Fragment {
     	                    try {
     	                        //check if hotspot started
     	                        while (!apControl.isWifiApEnabled()) {    	                           
-    	                            Thread.sleep(1000);                     
+    	                            Thread.sleep(500);                     
     	                        }
     	                        if(apControl.isWifiApEnabled()){
-    	                        Log.e(TAG, apControl.getIpAddress());
+    	                        	final String ipAddress = apControl.getIpAddress();
+    		                        Log.e(TAG, ipAddress);
+    		                        ((Activity)getActivity()).runOnUiThread(new Runnable() {  
+    		                            @Override
+    		                            public void run() {
+    		                            	TextView text = (TextView) view.findViewById(R.id.textView2);
+    		    	                        text.setText("Vesuvius is running on \n\nhttp://"+ipAddress+":"+Server.serverPort+"/vesuvius");
+    		                            }
+    		                        });
     	                        }
 
     	                    } catch (Exception e) {
@@ -100,8 +154,16 @@ public class HomeFragment extends Fragment {
     	        
     	        } else {
     	            // The toggle is disabled
+    	        	
+    	        	Server.turnOnOffHotspot(false);  
     	        	Log.e(TAG, "Server stop");
     	        	Server.stop();
+    	        	TextView text = (TextView) view.findViewById(R.id.textView2);
+                    text.setText("");
+                    
+                    // hide notification
+                    getActivity().stopService(notificationIntent);
+                    
     	        }
     	    }
     		
