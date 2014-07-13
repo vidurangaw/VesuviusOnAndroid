@@ -6,6 +6,9 @@ import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
 
+import com.vpowerrc.vesuviusserver.Server;
+
+import android.content.Context;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -35,7 +38,11 @@ public class WifiApControl {
     public static final String EXTRA_PREVIOUS_WIFI_AP_STATE = WifiManager.EXTRA_PREVIOUS_WIFI_STATE;
     public static final String EXTRA_WIFI_AP_STATE = WifiManager.EXTRA_WIFI_STATE;
 	private static final String TAG = "Vesuvius Server";
- 
+	
+	private static volatile WifiApControl instance = null;
+	public Context appContext;
+	private WifiManager wifiManager;
+	
     static {
         // lookup methods and fields not defined publicly in the SDK.
         Class<?> cls = WifiManager.class;
@@ -52,23 +59,44 @@ public class WifiApControl {
             }
         }
     }
- 
+    
+       
     public static boolean isApSupported() {
         return (getWifiApState != null && isWifiApEnabled != null
                 && setWifiApEnabled != null && getWifiApConfiguration != null);
     }
  
-    private WifiManager mgr;
+    
  
-    private WifiApControl(WifiManager mgr) {
-        this.mgr = mgr;
+    private WifiApControl(Context appContext, WifiManager wifiManager) {
+    	this.appContext = appContext;
+        this.wifiManager = wifiManager;
     }
- 
-    public static WifiApControl getApControl(WifiManager mgr) {
+    
+    public static WifiApControl getInstance() {       
+        return instance;
+    }
+    
+    public static WifiApControl createInstance(Context appContext) {
+        if (instance == null) {
+            synchronized (Server.class) {
+                // Double check
+                if (instance == null) {
+                	WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
+                    //WifiApControl apControl = WifiApControl.getApControl(wifiManager);
+                    instance = new WifiApControl(appContext, wifiManager);
+                }
+            }
+        }
+        return instance;
+    }
+    /*
+    public static WifiApControl getApControl(WifiManager wifiManager) {
         if (!isApSupported())
             return null;
-        return new WifiApControl(mgr);
+        return new WifiApControl(wifiManager);
     }
+    */
     
     public String getIpAddress() {
         if (!isApSupported())
@@ -96,7 +124,7 @@ public class WifiApControl {
     
     public boolean isWifiApEnabled() {
         try {
-            return (Boolean) isWifiApEnabled.invoke(mgr);
+            return (Boolean) isWifiApEnabled.invoke(wifiManager);
         } catch (Exception e) {
             Log.v(TAG, e.toString(), e); // shouldn't happen
             return false;
@@ -105,7 +133,7 @@ public class WifiApControl {
  
     public int getWifiApState() {
         try {
-            return (Integer) getWifiApState.invoke(mgr);
+            return (Integer) getWifiApState.invoke(wifiManager);
         } catch (Exception e) {
             Log.v(TAG, e.toString(), e); // shouldn't happen
             return -1;
@@ -114,7 +142,7 @@ public class WifiApControl {
  
     public WifiConfiguration getWifiApConfiguration() {
         try {
-            return (WifiConfiguration) getWifiApConfiguration.invoke(mgr);
+            return (WifiConfiguration) getWifiApConfiguration.invoke(wifiManager);
         } catch (Exception e) {
             Log.v(TAG, e.toString(), e); // shouldn't happen
             return null;
@@ -123,10 +151,22 @@ public class WifiApControl {
  
     public boolean setWifiApEnabled(WifiConfiguration config, boolean enabled) {
         try {
-            return (Boolean) setWifiApEnabled.invoke(mgr, config, enabled);
+            return (Boolean) setWifiApEnabled.invoke(wifiManager, config, enabled);
         } catch (Exception e) {
             Log.v(TAG, e.toString(), e); // shouldn't happen
             return false;
         }
     }
+    
+    public void turnOnOffHotspot(boolean isTurnToOn) {	       
+     	
+        // TURN OFF YOUR WIFI BEFORE ENABLE HOTSPOT
+        if (wifiManager.isWifiEnabled() && isTurnToOn) {
+        	wifiManager.setWifiEnabled(false);
+        }
+        
+        setWifiApEnabled(getWifiApConfiguration(),isTurnToOn);
+     }
+      
+    
 }

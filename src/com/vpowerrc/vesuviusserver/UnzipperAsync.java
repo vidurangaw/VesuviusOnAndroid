@@ -14,81 +14,128 @@ import android.util.Log;
 class UnzipperAsync extends android.os.AsyncTask<String, String, Void> {
 	
 	public Context appContext;
-	public ProgressDialog progressBar;
-	public String className;
-	Class loadedList = null;
+	public ProgressDialog progressBar;	
+	public static String TAG = "Vesuvius Server";
 	
-	public UnzipperAsync(Context appContext,ProgressDialog progressBar,String className) {
+	
+	public UnzipperAsync(Context appContext,ProgressDialog progressBar) {
 		// TODO Auto-generated constructor stub
 		this.appContext = appContext;
-		this.progressBar = progressBar;
-		this.className = className;
+		this.progressBar = progressBar;	
+		
 	}
-
+	
+	protected void onPreExecute(){
+		progressBar = new ProgressDialog(appContext);
+		progressBar.setMessage("Initializing Vesuvius server for the first time...");
+		progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+		progressBar.setProgress(0);
+		progressBar.setProgressNumberFormat(null);
+		progressBar.setCancelable(false);
+		progressBar.setCanceledOnTouchOutside(false);
+		progressBar.show();			
+	}
+	
 	@Override
 	protected Void doInBackground(String... params) {			
 		
-		String zipFile = params[0];
-		String location = params[1];
+		String serverFile = params[0];
+		String serverFileLocation = params[1];
+		String vesuviusFile = params[2];
+		String vesuviusFileLocation = params[3];
 		long totalSize=(long) 0;
-	
+		long currentSize=(long) 0;
 		
 		
 		
 		try {		
-			dirChecker(location, "");			
-			
-			
-			InputStream is = appContext.getAssets().open(zipFile);
-			ZipInputStream zin = new ZipInputStream(is);				
-		    ZipEntry ze = null; 
-		  	    
-		   // totalSize = (long) is.available();		    
-		    while ((ze = zin.getNextEntry()) != null) {
-		    	if (ze.isDirectory()) {
-					dirChecker(location, ze.getName());
+			dirChecker(serverFileLocation, "");			
+			InputStream is1 = appContext.getAssets().open(serverFile);
+			ZipInputStream zin1 = new ZipInputStream(is1);				
+		    ZipEntry ze1 = null; 		  	    
+		   		    
+		    while ((ze1 = zin1.getNextEntry()) != null) {
+		    	if (ze1.isDirectory()) {
+					dirChecker(serverFileLocation, ze1.getName());
 				} 
 				else {
-					totalSize+=ze.getSize();
-					
-					zin.closeEntry(); 
-				}
-		    		    	
-		    	
+					totalSize+=ze1.getSize();					
+					zin1.closeEntry(); 
+				}	    		    	
+		    }		  
+		    zin1.close();
+		    
+		    dirChecker(serverFileLocation, "");			
+			InputStream is2 = appContext.getAssets().open(serverFile);
+		    ZipInputStream zin2 = new ZipInputStream(is2);				
+		    ZipEntry ze2 = null;
+		    
+		    if(!Utilities.vesuviusInstalled()){    			    					 		  	    
+			   		    
+			    while ((ze2 = zin2.getNextEntry()) != null) {
+			    	if (ze2.isDirectory()) {
+						dirChecker(serverFileLocation, ze2.getName());
+					} 
+					else {
+						totalSize+=ze2.getSize();						
+						zin2.closeEntry(); 
+					}		  			    	
+			    }		  
+			    zin2.close();
 		    }
-		  
-		   zin.close();
-		   zin = new ZipInputStream(appContext.getAssets().open(zipFile));	      			     
-		  
-		   long currentSize=(long) 0;
+		    
+		    zin1 = new ZipInputStream(appContext.getAssets().open(serverFile));     		    
 		   
-			while ((ze = zin.getNextEntry()) != null) {											
-				if (ze.isDirectory()) {
-					dirChecker(location, ze.getName());
+			while ((ze1 = zin1.getNextEntry()) != null) {											
+				if (ze1.isDirectory()) {
+					dirChecker(serverFileLocation, ze1.getName());
 				} 
 				else {
-					FileOutputStream fout = new FileOutputStream(location+ ze.getName());
-					
+					FileOutputStream fout = new FileOutputStream(serverFileLocation+ ze1.getName());					
 					
 					byte[] buffer = new byte[4096 * 10];
 					int length = 0;
-					while ((length = zin.read(buffer)) != -1) {						
+					while ((length = zin1.read(buffer)) != -1) {						
 						
 						currentSize+=length;							
 						fout.write(buffer, 0, (int) length);							
 						publishProgress("extracting",""+(int) (( currentSize * 100) / totalSize));						
 						
-					}		
-					
-					zin.closeEntry();
+					}							
+					zin1.closeEntry();
 					fout.close();
+				}				
+			}
+			zin1.close();
+			
+			if(!Utilities.vesuviusInstalled()){
+				zin2 = new ZipInputStream(appContext.getAssets().open(vesuviusFile));     
+				 
+				while ((ze2 = zin2.getNextEntry()) != null) {											
+					if (ze2.isDirectory()) {
+						dirChecker(vesuviusFileLocation, ze2.getName());
+					} 
+					else {
+						FileOutputStream fout = new FileOutputStream(vesuviusFileLocation+ ze2.getName());					
+						
+						byte[] buffer = new byte[4096 * 10];
+						int length = 0;
+						while ((length = zin2.read(buffer)) != -1) {						
+							
+							currentSize+=length;							
+							fout.write(buffer, 0, (int) length);							
+							publishProgress("extracting",""+(int) (( currentSize * 100) / totalSize));						
+							
+						}							
+						zin2.closeEntry();
+						fout.close();
+					}				
 				}
-				//Log.v("File",currentSize+" " +totalSize);
+				zin2.close();				
 			}
 			
 			publishProgress("done","100");
-			
-			zin.close();
+			Log.e(TAG, "Installation finished");
 		
 		} catch (java.lang.Exception e) {
 			publishProgress("error","0");
@@ -112,13 +159,7 @@ class UnzipperAsync extends android.os.AsyncTask<String, String, Void> {
 	@Override
 	protected void onPostExecute(Void result) {
 		try{
-			//create instance of from dynamic class name
-			Class cls = Class.forName(className);
-			Object obj = cls.newInstance();
-	 
-			//call afterInstall method 
-			Method method = cls.getDeclaredMethod("afterInstall");
-			method.invoke(obj, null);
+			Server.getInstance().afterInstall();
 		
 		}catch(Exception ex){
 			ex.printStackTrace();

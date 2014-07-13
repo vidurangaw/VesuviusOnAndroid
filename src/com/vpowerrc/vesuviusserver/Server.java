@@ -3,7 +3,9 @@ package com.vpowerrc.vesuviusserver;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+
 import com.omt.remote.util.net.WifiApControl;
+
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -14,45 +16,102 @@ public class Server {
 	
 	
 	public static String TAG = "Vesuvius Server";
-	public static Context appContext;
-	public static ProgressDialog progressBar;
+	public Context appContext;
+	//public static ProgressDialog progressBar;
 	public static String serverPort="8080";
 	
+	private static volatile Server instance = null;
+	 
+    // private constructor
+    private Server(Context appContext) {
+    	this.appContext = appContext;
+    	Utilities.setContext(appContext);
+    	//install();
+    }
+    
+    public static Server getInstance() {       
+        return instance;
+    }
+    
+    public static Server createInstance(Context appContext) {
+        if (instance == null) {
+            synchronized (Server.class) {
+                // Double check
+                if (instance == null) {
+                    instance = new Server(appContext);
+                }
+            }
+        }
+        return instance;
+    }
+    
+	public void install(ProgressDialog progressBar){
+		//if(!serverInstalled()) {
+			UnzipperAsync unzipper = new UnzipperAsync(appContext,progressBar);		
+			unzipper.execute("data.zip",getAppDirectory() + "/","vesuvius.zip",getHttpDirectory() + "/www/");		
+		//}
+	}
 	
-	public static void install(ProgressDialog progressBar){
-		UnzipperAsync server_unzipper = new UnzipperAsync(appContext,progressBar,Server.class.getName());		
-		server_unzipper.execute("data.zip",Server.getAppDirectory() + "/");				
+	public void copyFiles(){		
+		createServerDirs();
+		restoreConfiguration("lighttpd.conf", getHttpDirectory() + "/conf/");
+		restoreConfiguration("php.ini", getHttpDirectory() + "/conf/");
+		restoreConfiguration("mysql.ini", getHttpDirectory() + "/conf/");
+		restoreConfiguration("create_database.php", getHttpDirectory() + "/www/scripts/");
+		restoreConfiguration("timezones.sql", getHttpDirectory() + "/www/scripts/");
+		
+		File tempFolder = new File(getHttpDirectory() + "/tmp/");
+		Utilities.deleteFolder(tempFolder);
+	}
+	
+	public void afterInstall(){			 
+		
+		copyFiles();
+		setPermission();		
+		
+		Utilities.writeSahanaConf();		
+		Utilities.convertHtacessToLighttpd();
+		
+		final ProgressDialog progressDialog = ProgressDialog.show(appContext, "Please wait","processig", true);
+		new Thread(new Runnable() {
+	       
+			public void run() {   
+				
+	        	Server.getInstance().start();	        
+	            	
+				try {
+					while (!Server.getInstance().isServerRunning()) {    	                           
+					    Thread.sleep(100); 				    
+					}
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} 		
+									
+				Utilities.createDatabase();
+				Log.e(TAG, "php script processed");
+				progressDialog.dismiss();					        	
+	        	//Server.getInstance().stop();			
+						            
+	        }
+		}).start();	
+		
 	}
 	
 	
-	public static void afterInstall(){
-
-		restoreOrCreateServerData();
-		restoreConfiguration("lighttpd.conf");
-		restoreConfiguration("php.ini");
-		restoreConfiguration("mysql.ini");
-		setPermission();
-		Server.start();
-	}
-
-	public static void setContext(Context appContext) {
-		Server.appContext = appContext;
-
-	}
-	
-	public static String getAppDirectory() {
+	public String getAppDirectory() {
 
 		return appContext.getApplicationInfo().dataDir;
 
 	}
 	
-	final public static String getHttpDirectory() {
+	public String getHttpDirectory() {
 
 		return android.os.Environment.getExternalStorageDirectory().getPath()+ "/htdocs";
 
 	}
 	
-	public static boolean checkIfInstalled() {
+	public boolean serverInstalled() {
 
 		
 		
@@ -61,37 +120,21 @@ public class Server {
 		File mLighttpd = new File(getAppDirectory() + "/lighttpd");
 		File mMySqlMon = new File(getAppDirectory() + "/mysql-monitor");
 		
-		if (mPhp.exists() && mMySql.exists() && mLighttpd.exists()&& mMySqlMon.exists()) {
-			Log.d("yes",getHttpDirectory());
-			
+		if (mPhp.exists() && mMySql.exists() && mLighttpd.exists()&& mMySqlMon.exists()) {					
 			return true;
 			
 		}
-		else{
-			Log.d("no",getHttpDirectory());
+		else{		
 			
 			return false;
 		
 		}
 	}
 	
-	public static WifiApControl turnOnOffHotspot(boolean isTurnToOn) {
-        WifiManager wifiManager = (WifiManager) appContext.getSystemService(Context.WIFI_SERVICE);
-        WifiApControl apControl = WifiApControl.getApControl(wifiManager);
-        if (apControl != null) {        	
-            // TURN OFF YOUR WIFI BEFORE ENABLE HOTSPOT
-            if (wifiManager.isWifiEnabled() && isTurnToOn) {
-            	wifiManager.setWifiEnabled(false);
-            }
-            
-            apControl.setWifiApEnabled(apControl.getWifiApConfiguration(),isTurnToOn);
-        }
-        return apControl;
-    }
 	
 	
 	
-	protected static boolean isServerRunning() throws IOException {
+	protected boolean isServerRunning() throws IOException {
 		InputStream is;
 		java.io.BufferedReader bf;
 		boolean isRunning = false;
@@ -118,20 +161,20 @@ public class Server {
 
 	}
 	
-	final static private void setPermission() {
+	protected void setPermission() {
 		try {
 
-			execCommand("/system/bin/chmod 777 " + getAppDirectory()
+			Utilities.execCommand("/system/bin/chmod 777 " + getAppDirectory()
 					+ "/lighttpd");
-			execCommand("/system/bin/chmod 777 " + getAppDirectory()
+			Utilities.execCommand("/system/bin/chmod 777 " + getAppDirectory()
 					+ "/php-cgi");
-			execCommand("/system/bin/chmod 777 " + getAppDirectory()
+			Utilities.execCommand("/system/bin/chmod 777 " + getAppDirectory()
 					+ "/mysqld");
-			execCommand("/system/bin/chmod 777 " + getAppDirectory()
+			Utilities.execCommand("/system/bin/chmod 777 " + getAppDirectory()
 					+ "/mysql-monitor");
-			execCommand("/system/bin/chmod 777 " + getAppDirectory()
+			Utilities.execCommand("/system/bin/chmod 777 " + getAppDirectory()
 					+ "/killall");
-			execCommand("/system/bin/chmod 755 " + getAppDirectory() + "/tmp");
+			Utilities.execCommand("/system/bin/chmod 755 " + getAppDirectory() + "/tmp");
 
 		} catch (java.lang.Exception e) {
 			Log.e(TAG, "setPermission", e);
@@ -139,7 +182,7 @@ public class Server {
 
 	}
 	
-	final private static void restoreOrCreateServerData() {
+	protected void createServerDirs() {
 
 		File mFile = new File(getHttpDirectory() + "/conf/");
 		if (!mFile.exists())
@@ -155,15 +198,20 @@ public class Server {
 		
 		mFile = new File(getHttpDirectory() + "/tmp/");
 		if (!mFile.exists())
-			mFile.mkdir();		
-
+			mFile.mkdir();	
+		
+		mFile = new File(getHttpDirectory() + "/www/scripts/");
+		if (!mFile.exists())
+			mFile.mkdir();
+		
+		
 	}
 	
-	final private static void restoreConfiguration(String fileName) {
+	private void restoreConfiguration(String fileName, String location) {
 
-		File isConf = new File(getHttpDirectory() + "/conf/" + fileName);
-		if (isConf.exists()) {
-			isConf.delete();
+		File file = new File(location + fileName);
+		if (file.exists()) {
+			file.delete();
 		}
 			try {
 
@@ -190,51 +238,24 @@ public class Server {
 				mString = mString.replace("%app_dir%", getAppDirectory());
 				mString = mString.replace("%http_dir%", getHttpDirectory());
 				mString = mString.replace("%port%", serverPort);
-				org.apache.commons.io.FileUtils.writeStringToFile(new File(
-						getHttpDirectory() + "/conf/" + fileName), mString,
-						"UTF-8");
+				org.apache.commons.io.FileUtils.writeStringToFile(new File(location + fileName), mString,"UTF-8");
+				
 			} catch (java.lang.Exception e) {
 				Log.e(TAG, "Unable to copy " + fileName + " from assets", e);
 
 			}
+			
+			
 		
 
 	}
 	
-	final public static Boolean killProcessByName(String mProcessName) {
-
-		return execCommand(getAppDirectory() + "/killall " +  mProcessName);
-	}
 	
-	final public static boolean execCommand(String mCommand) {
-
-		/*
-		 * Create a new Instance of Runtime
-		 */
-		Runtime r = Runtime.getRuntime();
-		try {
-			/**
-			 * Executes the command
-			 */
-			r.exec(mCommand);
-
-		} catch (java.io.IOException e) {
-
-			Log.e(TAG, "execCommand", e);
-
-			r = null;
-
-			return false;
-		}
-
-		return true;
-
-	}
 
 	
 	
 
-	public static void start() {
+	public void start() {
 		// TODO Auto-generated method stub
 		System.out.println("ON");
 		
@@ -266,7 +287,7 @@ public class Server {
 	}
 
 
-	public static  void stop() {
+	public void stop() {
 		// TODO Auto-generated method stub
 		System.out.println("OFF");
 		
@@ -277,13 +298,11 @@ public class Server {
 		 * destroyed. Anyway if it is unable to kill <strong>PHP</strong> lets
 		 * kill by invoking <b>killall</b> command
 		 */
-		killProcessByName("lighttpd");
-		/**
-		 * see above doc why i called PHP here
-		 */
-		killProcessByName("php");
-		killProcessByName("mysqld");
-		killProcessByName("mysql-monitor");
+		Utilities.execCommand(getAppDirectory() + "/killall lighttpd");		
+		Utilities.execCommand(getAppDirectory() + "/killall php");
+		Utilities.execCommand(getAppDirectory() + "/killall mysqld");
+		
+		//Utilities.execCommand(getAppDirectory() + "/killall mysql-monitor");
 
 	}
 }

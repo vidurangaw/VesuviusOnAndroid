@@ -45,115 +45,98 @@ public class HomeFragment extends Fragment {
         // inflate the layout for this fragment    
     	final View view = inflater.inflate(R.layout.fragment_home, container, false);    	
     	  
-    	ToggleButton toggle = (ToggleButton) view.findViewById(R.id.serverToggleButton);    	
-    	
-    	//Server.afterInstall();
-    	//Vesuvius.afterInstall();
-    	
+    	ToggleButton toggle = (ToggleButton) view.findViewById(R.id.serverToggleButton);   
+    	   
     	// create notification  	
-		final Intent notificationIntent = new Intent(getActivity(), VesuviusNotificationService.class);
-
-    	try {
-			if(Server.isServerRunning()){				
-				toggle.setChecked(true);
-				
-				final WifiApControl apControl = Server.turnOnOffHotspot(true);  
-	        	
-	        	
-	        	Thread t = new Thread() {
-	                @Override
-	                
-	                public void run() {
-	                    try {
-	                        //check if hotspot started
-	                        while (!apControl.isWifiApEnabled()) {    	                           
-	                            Thread.sleep(500);                     
-	                        }
-	                        if(apControl.isWifiApEnabled()){
-	                        final String ipAddress = apControl.getIpAddress();
-	                        Log.e(TAG, ipAddress);
-	                        	((Activity)getActivity()).runOnUiThread(new Runnable() {  
-		                            @Override
-		                            public void run() {
-		                            	TextView text = (TextView) view.findViewById(R.id.textView2);
-		    	                        text.setText("Vesuvius is running on \n\nhttp://"+ipAddress+":"+Server.serverPort+"/vesuvius");
-		                            }
-		                        });
-	                        
-	                        }
-
-	                    } catch (Exception e) {
-	                    }
-	                }
-	            };
-	            t.start();	            
-				Log.e(TAG, "running");			
-				
-				// show notification 
-				getActivity().startService(notificationIntent);
-
-			}
-		} catch (IOException e) {			
-			e.printStackTrace();
-		}
-    	
-    	
+		final Intent notificationIntent = new Intent(getActivity(), VesuviusNotificationService.class);   
+					    	    	
     	toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
     	    
     		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-    	        if (isChecked) {
-    	            // The toggle is enabled
-    	        	if(!Vesuvius.checkIfInstalled()){
-    	        		Log.e(TAG, "Instsll");
-    	    			addProgresBar("Installing Vesuvius");    	    			
-    	    			Vesuvius.install(progressBar);
-    	    		}    	        	
-    	        	Log.e(TAG, "Server start");
-    	        	Server.start();    	        	
-    	        	// show notification    	        	       	
-    	        	
-    	        	final WifiApControl apControl = Server.turnOnOffHotspot(true);     	        	
-    	        	
-    	        	Thread t = new Thread() {
+    			final ProgressDialog progressDialog = ProgressDialog.show(getActivity(), "Please wait","processig", true);
+    	        if (isChecked) {    	          	    	
+    	        	               	        	       	
+    	           	new Thread(new Runnable() {
     	                @Override
     	                public void run() {
-    	                    try {
-    	                        //check if hotspot started
-    	                        while (!apControl.isWifiApEnabled()) {    	                           
-    	                            Thread.sleep(500);                     
-    	                        }
-    	                        if(apControl.isWifiApEnabled()){
-    	                        	final String ipAddress = apControl.getIpAddress();
-    		                        Log.e(TAG, ipAddress);
-    		                        ((Activity)getActivity()).runOnUiThread(new Runnable() {  
-    		                            @Override
-    		                            public void run() {
-    		                            	TextView text = (TextView) view.findViewById(R.id.textView2);
-    		    	                        text.setText("Vesuvius is running on \n\nhttp://"+ipAddress+":"+Server.serverPort+"/vesuvius");
-    		    	                        getActivity().startService(notificationIntent);    	 
-    		                            }
-    		                        });
-    	                        }
-
-    	                    } catch (Exception e) {
-    	                    }
+    	                   
+    	                	WifiApControl.getInstance().turnOnOffHotspot(true);
+    	        			try {
+								if(!Server.getInstance().isServerRunning()) {  
+									Server.getInstance().start();
+									Log.e(TAG, "Server start");
+								}
+							} catch (IOException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+    	        			
+	                        //check if hotspot started
+	                        while (!WifiApControl.getInstance().isWifiApEnabled()) {    	                           
+	                            try {
+									Thread.sleep(200);
+								} catch (InterruptedException e) {
+									// TODO Auto-generated catch block
+									e.printStackTrace();
+								}                     
+	                        }
+	                        
+                        	final String ipAddress = WifiApControl.getInstance().getIpAddress();
+	                        Log.e(TAG, ipAddress);
+	                        
+	                        getActivity().runOnUiThread(new Runnable() {  
+	                            @Override
+	                            public void run() {
+	                            	TextView text = (TextView) view.findViewById(R.id.textView2);
+	    	                        text.setText("Vesuvius is running on \n\nhttp://"+ipAddress+":"+Server.serverPort+"/vesuvius");
+	    	                        getActivity().startService(notificationIntent);    	 
+	                            }
+	                        });
+	                        
+	                        try {
+								while (!Server.getInstance().isServerRunning()) {    	                           
+								    Thread.sleep(500); 				    
+								}
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+	                        
+	                        progressDialog.dismiss();                     
+    	                          	                  
     	                }
-    	            };
-    	            t.start();
-    	        	
-    	        
-    	        } else {
-    	            // The toggle is disabled
-    	        	
-    	        	TextView text = (TextView) view.findViewById(R.id.textView2);
-                    text.setText("");
-    	        	Server.turnOnOffHotspot(false);  
-    	        	Log.e(TAG, "Server stop");
-    	        	Server.stop();
-    	        	
-                    
-                    // hide notification
-                    getActivity().stopService(notificationIntent);
+    	        	}).start();   	          
+    	        	    	        
+    	        } else {    	        	
+    	            // The toggle is disabled	    	    
+	    	        
+	    	        new Thread(new Runnable() {
+	    		        public void run() {	        	
+	    		        	
+	    		        	Server.getInstance().stop();
+	    	        		Log.e(TAG, "Server stop");
+	    		        	WifiApControl.getInstance().turnOnOffHotspot(false);	
+	    	        		getActivity().stopService(notificationIntent);   	    		            
+	    		             		            	
+							try {
+								while (Server.getInstance().isServerRunning()) {    	                           
+								    Thread.sleep(500); 				    
+								}
+							} catch (Exception e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+							
+							getActivity().runOnUiThread(new Runnable() {  
+	                            @Override
+	                            public void run() {
+									TextView text = (TextView) view.findViewById(R.id.textView2);
+					                text.setText("");
+					                progressDialog.dismiss();
+	                            }
+							});
+	    		        }
+	    		    }).start();		    	                   
                     
     	        }
     	    }
