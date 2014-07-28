@@ -6,6 +6,7 @@ import java.io.InputStream;
 
 import com.omt.remote.util.net.WifiApControl;
 
+import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.res.AssetManager;
@@ -19,6 +20,7 @@ public class Server {
 	public Context appContext;
 	//public static ProgressDialog progressBar;
 	public static String serverPort="8080";
+	public ProgressDialog progressDialog;
 	
 	private static volatile Server instance = null;
 	 
@@ -64,21 +66,29 @@ public class Server {
 		Utilities.deleteFolder(tempFolder);
 	}
 	
-	public void afterInstall(){			 
+	public void afterInstall(final ProgressDialog progressDialog){			 
 		
-		copyFiles();
-		setPermission();		
+		this.progressDialog = progressDialog;
 		
-		Utilities.writeSahanaConf();		
-		Utilities.convertHtacessToLighttpd();
-		
-		final ProgressDialog progressDialog = ProgressDialog.show(appContext, "Please wait","processig", true);
 		new Thread(new Runnable() {
 	       
 			public void run() {   
 				
-	        	Server.getInstance().start();	        
-	            	
+				copyFiles();
+				setPermission();		
+				
+				Utilities.writeSahanaConf();		
+				Utilities.convertHtacessToLighttpd();
+				
+				try {
+					if (!Server.getInstance().isServerRunning()){
+						Server.getInstance().start();	        
+					}
+				} catch (IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+				
 				try {
 					while (!Server.getInstance().isServerRunning()) {    	                           
 					    Thread.sleep(100); 				    
@@ -90,9 +100,12 @@ public class Server {
 									
 				Utilities.createDatabase();
 				Log.e(TAG, "php script processed");
-				progressDialog.dismiss();					        	
-	        	//Server.getInstance().stop();			
-						            
+				((Activity) appContext).runOnUiThread(new Runnable() {  
+                    @Override
+                    public void run() {
+                    	progressDialog.dismiss();	        	
+	        	    }
+                });		            
 	        }
 		}).start();	
 		

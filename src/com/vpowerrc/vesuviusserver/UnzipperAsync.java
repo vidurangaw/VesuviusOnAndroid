@@ -1,6 +1,7 @@
 package com.vpowerrc.vesuviusserver;
 
 import java.io.File;
+import android.app.Activity;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.lang.reflect.Method;
@@ -15,6 +16,7 @@ class UnzipperAsync extends android.os.AsyncTask<String, String, Void> {
 	
 	public Context appContext;
 	public ProgressDialog progressBar;	
+	public ProgressDialog progressDialog;	
 	public static String TAG = "Vesuvius Server";
 	
 	
@@ -151,16 +153,17 @@ class UnzipperAsync extends android.os.AsyncTask<String, String, Void> {
 		progressBar.setProgress(Integer.parseInt(values[1]));
 		
 		if(values[0]=="done"){
-			progressBar.cancel();				
+			progressBar.cancel();	
+			progressDialog = ProgressDialog.show(appContext, "Please wait","processing", true);
 		}
 
 	}
 	
 	@Override
 	protected void onPostExecute(Void result) {
-		try{
-			Server.getInstance().afterInstall();
-		
+		try{				
+			Server.getInstance().afterInstall(progressDialog);
+			
 		}catch(Exception ex){
 			ex.printStackTrace();
 		}		

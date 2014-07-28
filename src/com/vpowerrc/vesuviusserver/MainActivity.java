@@ -44,41 +44,42 @@ public class MainActivity extends ActionBarActivity{
 		
 		try {
 			if(Server.getInstance().isServerRunning()){			
-									
-				new Thread(new Runnable() {
-			        @Override
-			        
-			        public void run() {
-			            try {
-			                //check if hotspot started
-			            	WifiApControl.getInstance().turnOnOffHotspot(true);  
-			            	
-			                while (!WifiApControl.getInstance().isWifiApEnabled()) {    	                           
-			                    Thread.sleep(500);                     
-			                }
-			                if(WifiApControl.getInstance().isWifiApEnabled()){
-			                	
-			                	final String ipAddress = WifiApControl.getInstance().getIpAddress();
-			                	Log.e(TAG, ipAddress);
-			                	startService(notificationIntent);
-			                	
-			                	runOnUiThread(new Runnable() {  
-			                        @Override
-			                        public void run() {
-			                        	TextView text = (TextView) findViewById(R.id.textView2);
-				                        text.setText("Vesuvius is running on \n\nhttp://"+ipAddress+":"+Server.serverPort+"/vesuvius");
-				                        ToggleButton toggle = (ToggleButton) findViewById(R.id.serverToggleButton); 
-				                        toggle.setChecked(true);			
-			                        }
-			                    });
-			                
-			                }
-
-			            } catch (Exception e) {
-			            }
-			        }
-				}).start(); 
 				
+				if(Server.getInstance().serverInstalled()){
+					new Thread(new Runnable() {
+				        @Override
+				        
+				        public void run() {
+				            try {
+				                //check if hotspot started
+				            	WifiApControl.getInstance().turnOnOffHotspot(true);  
+				            	
+				                while (!WifiApControl.getInstance().isWifiApEnabled()) {    	                           
+				                    Thread.sleep(500);                     
+				                }
+				                if(WifiApControl.getInstance().isWifiApEnabled()){
+				                	
+				                	final String ipAddress = WifiApControl.getInstance().getIpAddress();
+				                	Log.e(TAG, ipAddress);
+				                	startService(notificationIntent);
+				                	
+				                	runOnUiThread(new Runnable() {  
+				                        @Override
+				                        public void run() {
+				                        	TextView text = (TextView) findViewById(R.id.textView2);
+					                        text.setText("Vesuvius is running on \n\nhttp://"+ipAddress+":"+Server.serverPort+"/vesuvius");
+					                        ToggleButton toggle = (ToggleButton) findViewById(R.id.serverToggleButton); 
+					                        toggle.setChecked(true);			
+				                        }
+				                    });
+				                
+				                }
+	
+				            } catch (Exception e) {
+				            }
+				        }
+					}).start(); 
+				}
 				Log.e(TAG, "running");				
 				// show notification 
 				this.startService(notificationIntent);

@@ -53,7 +53,7 @@ public class HomeFragment extends Fragment {
     	toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
     	    
     		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-    			final ProgressDialog progressDialog = ProgressDialog.show(getActivity(), "Please wait","processig", true);
+    			final ProgressDialog progressDialog = ProgressDialog.show(getActivity(), "Please wait","processing", true);
     	        if (isChecked) {    	          	    	
     	        	               	        	       	
     	           	new Thread(new Runnable() {
@@ -74,12 +74,19 @@ public class HomeFragment extends Fragment {
 	                        //check if hotspot started
 	                        while (!WifiApControl.getInstance().isWifiApEnabled()) {    	                           
 	                            try {
-									Thread.sleep(200);
+									Thread.sleep(500);
 								} catch (InterruptedException e) {
 									// TODO Auto-generated catch block
 									e.printStackTrace();
 								}                     
 	                        }
+	                        
+	                        try {
+								Thread.sleep(500);
+							} catch (InterruptedException e1) {
+								// TODO Auto-generated catch block
+								e1.printStackTrace();
+							}
 	                        
                         	final String ipAddress = WifiApControl.getInstance().getIpAddress();
 	                        Log.e(TAG, ipAddress);
@@ -141,14 +148,9 @@ public class HomeFragment extends Fragment {
     	        }
     	    }
     		
-    	
-    		
-    	});
-    	
-    	
-    	
-    	
-           	
+    	    		
+    	}); 	    	
+    	    	           	
     	
     	return view;
     
