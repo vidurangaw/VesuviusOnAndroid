@@ -1,12 +1,10 @@
-package com.omt.remote.util.net;
+package com.vpowerrc.vesuviusserver;
 
 import java.lang.reflect.Method;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
 import java.net.SocketException;
 import java.util.Enumeration;
-
-import com.vpowerrc.vesuviusserver.Server;
 
 import android.content.Context;
 import android.net.wifi.WifiConfiguration;

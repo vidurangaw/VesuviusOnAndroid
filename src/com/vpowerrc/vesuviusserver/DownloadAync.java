@@ -12,7 +12,7 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.util.Log;
 
-class UnzipperAsync extends android.os.AsyncTask<String, String, Void> {
+class DownloadAync extends android.os.AsyncTask<String, String, Void> {
 	
 	public Context appContext;
 	public ProgressDialog progressBar;	
@@ -20,7 +20,7 @@ class UnzipperAsync extends android.os.AsyncTask<String, String, Void> {
 	public static String TAG = "Vesuvius Server";
 	
 	
-	public UnzipperAsync(Context appContext,ProgressDialog progressBar) {
+	public DownloadAync(Context appContext,ProgressDialog progressBar) {
 		// TODO Auto-generated constructor stub
 		this.appContext = appContext;
 		this.progressBar = progressBar;	
@@ -28,7 +28,7 @@ class UnzipperAsync extends android.os.AsyncTask<String, String, Void> {
 	}
 	
 	protected void onPreExecute(){
-		//progressBar = new ProgressDialog(appContext);
+		progressBar = new ProgressDialog(appContext);
 		progressBar.setMessage("Initializing Vesuvius server for the first time...");
 		progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
 		progressBar.setProgress(0);

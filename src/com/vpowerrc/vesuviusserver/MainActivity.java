@@ -6,12 +6,12 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 
-import com.omt.remote.util.net.WifiApControl;
 import com.vpowerrc.vesuviusserver.Server;
 
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
@@ -25,8 +25,7 @@ public class MainActivity extends ActionBarActivity{
 	
 
 	public Context appContext = this;	
-	public ProgressDialog progressBar;
-	public ProgressDialog progressBar2;
+	public ProgressDialog progressBar;	
 	public static String TAG = "Vesuvius Server";
 	
 	/** Called when the activity is first created. */
@@ -97,8 +96,7 @@ public class MainActivity extends ActionBarActivity{
 			Server.getInstance().install(progressBar);
 		}
 		
-		//Server.getInstance().afterInstall();	
-				
+					
 		//ActionBar gets initiated
 		ActionBar actionbar = getSupportActionBar();
 		//Tell the ActionBar we want to use Tabs.
@@ -114,17 +112,17 @@ public class MainActivity extends ActionBarActivity{
 		ActionBar.Tab aboutTab = actionbar.newTab().setText("About");
 	
 		//create the two fragments we want to use for display content
-		Fragment homeFragment = new HomeFragment();
-		Fragment settingsFragment = new SettingsFragment();
-		Fragment aboutFragment = new AboutFragment();
+		//Fragment homeFragment = new HomeFragment();
+		//Fragment settingsFragment = new SettingsFragment();
+		//Fragment aboutFragment = new AboutFragment();
 	
 		//set the Tab listener. Now we can listen for clicks.
-		homeTab.setTabListener(new MyTabsListener(homeFragment));
-		settingsTab.setTabListener(new MyTabsListener(settingsFragment));
-		aboutTab.setTabListener(new MyTabsListener(aboutFragment));
+		homeTab.setTabListener(new TabsListener<HomeFragment>(this, "home", HomeFragment.class));
+		settingsTab.setTabListener(new TabsListener<SettingsFragment>(this, "settings", SettingsFragment.class));
+		aboutTab.setTabListener(new TabsListener<AboutFragment>(this, "about", AboutFragment.class));
 	
 		//add the two tabs to the actionbar
-		actionbar.addTab(homeTab);
+		actionbar.addTab(homeTab, true);
 		actionbar.addTab(settingsTab);
 		actionbar.addTab(aboutTab);
 		
@@ -132,35 +130,43 @@ public class MainActivity extends ActionBarActivity{
 	
 	}
 	
-	public void addProgresBar(String message) {					
-		
-	}
-	
 	
 }
 
-class MyTabsListener implements ActionBar.TabListener {
-    public Fragment fragment;
+class TabsListener<T extends Fragment> implements ActionBar.TabListener {
+    private Fragment fragment;
+    private String tag;
+    private Activity activity;
+    private final Class<T> clz;
 
-    public MyTabsListener(Fragment fragment) {
-    	this.fragment = fragment;
+    public TabsListener(Activity activity, String tag, Class<T> clz) {
+    	this.clz = clz;
+    	this.tag = tag;
+    	this.activity = activity;
     }   
 
     @Override
-    public void onTabSelected(Tab tab, FragmentTransaction ft) {
-    	ft.replace(R.id.fragment_container, fragment);
-    
+    public void onTabSelected(Tab tab, FragmentTransaction ft) { 
+    	Fragment preInitializedFragment = ((FragmentActivity) activity).getSupportFragmentManager().findFragmentByTag(tag);
+    	if (fragment == null && preInitializedFragment == null) {    		
+    		fragment = (Fragment) Fragment.instantiate(activity, clz.getName());
+    		ft.add(R.id.fragment_container, fragment);
+    	}
+    	else{    		
+    		ft.show(fragment);    		
+    	}
+    		
+    	
     }
 
     @Override
     public void onTabUnselected(Tab tab, FragmentTransaction ft) {
-    	ft.remove(fragment);
+    	ft.hide(fragment);    	
     }
 
 	@Override
-	public void onTabReselected(Tab arg0, FragmentTransaction arg1) {
-		// TODO Auto-generated method stub
-		
+	public void onTabReselected(Tab tab, FragmentTransaction ft) {
+		// TODO Auto-generated method stub	
 	}
 
 }  

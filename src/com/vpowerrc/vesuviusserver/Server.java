@@ -4,8 +4,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
-import com.omt.remote.util.net.WifiApControl;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
@@ -48,10 +46,10 @@ public class Server {
     }
     
 	public void install(ProgressDialog progressBar){
-		//if(!serverInstalled()) {
+		if(!serverInstalled()) {
 			UnzipperAsync unzipper = new UnzipperAsync(appContext,progressBar);		
 			unzipper.execute("data.zip",getAppDirectory() + "/","vesuvius.zip",getHttpDirectory() + "/www/");		
-		//}
+		}
 	}
 	
 	public void copyFiles(){		

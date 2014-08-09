@@ -4,8 +4,6 @@ package com.vpowerrc.vesuviusserver;
 
 import java.io.IOException;
 
-import com.omt.remote.util.net.WifiApControl;
-
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Intent;
@@ -21,29 +19,13 @@ import android.widget.ToggleButton;
 
 
 public class HomeFragment extends Fragment {
-	public ProgressDialog progressBar;
-	public static String TAG = "Vesuvius Server";	
-	public void addProgresBar(String message) {
-			
-			
-			
-			progressBar = new ProgressDialog(getActivity());
-			progressBar.setMessage(message+" ...");
-			progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
-			progressBar.setProgress(0);
-			progressBar.setProgressNumberFormat(null);
-			progressBar.setCancelable(false);
-			progressBar.setCanceledOnTouchOutside(false);
-			progressBar.show();
-			
 	
-	}
-
+	View view;
 	@Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    	
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {		
+		
         // inflate the layout for this fragment    
-    	final View view = inflater.inflate(R.layout.fragment_home, container, false);    	
+    	view = inflater.inflate(R.layout.fragment_home, container, false);    	
     	  
     	ToggleButton toggle = (ToggleButton) view.findViewById(R.id.serverToggleButton);   
     	   
@@ -53,6 +35,7 @@ public class HomeFragment extends Fragment {
     	toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
     	    
     		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+    			Log.e(Server.TAG, "Clicked");
     			final ProgressDialog progressDialog = ProgressDialog.show(getActivity(), "Please wait","processing", true);
     	        if (isChecked) {    	          	    	
     	        	               	        	       	
@@ -64,7 +47,7 @@ public class HomeFragment extends Fragment {
     	        			try {
 								if(!Server.getInstance().isServerRunning()) {  
 									Server.getInstance().start();
-									Log.e(TAG, "Server start");
+									Log.e(Server.TAG, "Server start");
 								}
 							} catch (IOException e) {
 								// TODO Auto-generated catch block
@@ -89,7 +72,7 @@ public class HomeFragment extends Fragment {
 							}
 	                        
                         	final String ipAddress = WifiApControl.getInstance().getIpAddress();
-	                        Log.e(TAG, ipAddress);
+	                        Log.e(Server.TAG, ipAddress);
 	                        
 	                        getActivity().runOnUiThread(new Runnable() {  
 	                            @Override
@@ -121,7 +104,7 @@ public class HomeFragment extends Fragment {
 	    		        public void run() {	        	
 	    		        	
 	    		        	Server.getInstance().stop();
-	    	        		Log.e(TAG, "Server stop");
+	    	        		Log.e(Server.TAG, "Server stop");
 	    		        	WifiApControl.getInstance().turnOnOffHotspot(false);	
 	    	        		getActivity().stopService(notificationIntent);   	    		            
 	    		             		            	
@@ -151,10 +134,11 @@ public class HomeFragment extends Fragment {
     	    		
     	}); 	    	
     	    	           	
-    	
-    	return view;
-    
-    }
-	
+	    	
+	    	
+	    
+	    
+		return view;
+	}
 	
 }

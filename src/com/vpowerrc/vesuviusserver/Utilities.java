@@ -11,8 +11,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.net.URLConnection;
 
-import com.omt.remote.util.net.WifiApControl;
-
 import android.content.Context;
 import android.content.res.AssetManager;
 import android.net.wifi.WifiManager;
@@ -83,7 +81,7 @@ public class Utilities {
 	public static void convertHtacessToLighttpd(){
 		
 		
-		File htaccessFile = new File(getVesuviusDirectory()+"www/.htaccess");
+		File htaccessFile = new File(getVesuviusDirectory()+"www/htaccess.example");
 		File lighttpdConfFile = new File(getHttpDirectory()+"conf/lighttpd.conf");
 		
 		
@@ -261,6 +259,9 @@ public class Utilities {
 	                }
 	                if (line.contains("#$conf['https']")) {
 	                	line = line.replace("#", "");	                
+	                }
+	                if (line.contains("$conf['mobile_server']")) {
+	                	line = line.replace("false", "true");	                
 	                }
 	                
 	                //write to sahana.conf
