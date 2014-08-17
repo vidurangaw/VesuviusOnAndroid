@@ -1,6 +1,49 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:weightSum="1">
+    
+    <RelativeLayout 
     android:layout_width="match_parent"
-    android:layout_height="match_parent" > 
+    android:layout_marginTop="@dimen/margin_size"
+    android:layout_height="0dp"
+    android:layout_weight=".40" >
 
-</RelativeLayout>
+	    <TextView
+            android:id="@+id/statusText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textView1"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/margin_size"
+            android:gravity="center"
+            android:text="The Mission of the Sahana Software Foundation is to help alleviate human suffering by giving emergency managers, disaster response professionals and communities access to the information that they need to better prepare for and respond to disasters through the development and promotion of free and open source software and open standards. "
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="@dimen/text_size" />
+
+	</RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".47" >
+    
+	  
+	</RelativeLayout>
+	
+	<RelativeLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="0dp"
+	    android:layout_weight=".12" >
+	    <ImageView
+	        android:id="@+id/imageView1"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_alignParentBottom="true"
+	        android:layout_centerHorizontal="true"	       
+	        android:src="@drawable/sahanalogo" />
+
+	</RelativeLayout>
+</LinearLayout>

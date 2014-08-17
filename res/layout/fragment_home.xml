@@ -1,61 +1,83 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical"
+    android:weightSum="1">
+    
+    <RelativeLayout 
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="0dp"
+    android:layout_marginTop="@dimen/margin_size"
+    android:layout_weight=".35" >
 
-    <ImageView
-        android:id="@+id/imageView2"
-        android:layout_width="300dp"
-        android:layout_height="150dp"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="30dp"
-        android:src="@drawable/vesuvius_logo" />
+	    <ImageView
+	        android:id="@+id/imageView2"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_alignParentTop="true"
+	        android:layout_centerHorizontal="true"
+	        android:layout_marginTop="@dimen/margin_size"
+	        android:src="@drawable/vesuvius_logo" />
 
+	</RelativeLayout>
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/imageView2"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="14dp"
-        android:text="@string/vesuvius_name"
-        android:textAlignment="center"
-        android:textColor="@color/custom_blue"
-        android:textSize="30sp" />
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".52" >
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/margin_size"
+            android:text="@string/vesuvius_name"
+            android:textAlignment="center"
+            android:textColor="@color/custom_blue"
+            android:textSize="@dimen/h1_text_size" />
+
+        <TextView
+            android:id="@+id/statusText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/textView1"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="@dimen/margin_size"
+            android:gravity="center"
+            android:text=""
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textSize="@dimen/h3_text_size" />
+
+        <ToggleButton
+            android:id="@+id/serverToggleButton"
+            android:layout_width="@dimen/button_width"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="@dimen/margin_size"
+            android:textOff="Start Server"
+            android:textOn="Stop Server"
+            android:textSize="@dimen/button_text_size"            
+    		android:paddingTop="@dimen/margin_size"
+    		android:paddingBottom="@dimen/margin_size" />
+
+    </RelativeLayout>
     
-    <ToggleButton
-        android:id="@+id/serverToggleButton"
-        android:layout_width="175dp"
-        android:layout_height="wrap_content"
-        android:layout_above="@+id/imageView1"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="23dp"
-        android:textOff="Start Server"
-        android:textOn="Stop Server" />
-    
+	<RelativeLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="0dp"
+	    android:layout_weight=".12" >
+        
+	    <ImageView
+	        android:id="@+id/imageView1"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_centerHorizontal="true"
+	        android:layout_alignParentBottom="true"	        
+	        android:src="@drawable/sahanalogo" />
+	
+	</RelativeLayout>
+	
+</LinearLayout>
 
-    <ImageView
-        android:id="@+id/imageView1"
-        android:layout_width="175dp"
-        android:layout_height="60dp"
-        android:layout_alignLeft="@+id/serverToggleButton"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="10dp"
-        android:src="@drawable/sahanalogo" />
-
-    <TextView
-        android:id="@+id/textView2"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/textView1"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="53dp"
-        android:text=""
-        android:gravity="center"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:textSize="20sp" />
-
-</RelativeLayout>
- <!-- android:textColor="@color/custom_grey" -->

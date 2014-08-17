@@ -16,7 +16,7 @@ public class Server {
 	
 	public static String TAG = "Vesuvius Server";
 	public Context appContext;
-	//public static ProgressDialog progressBar;
+	public ProgressDialog progressBar;
 	public static String serverPort="8080";
 	public ProgressDialog progressDialog;
 	
@@ -24,9 +24,9 @@ public class Server {
 	 
     // private constructor
     private Server(Context appContext) {
-    	this.appContext = appContext;
+    	this.appContext = appContext;    	
     	Utilities.setContext(appContext);
-    	//install();
+    	AsyncManager.setContext(appContext);    	
     }
     
     public static Server getInstance() {       
@@ -46,10 +46,11 @@ public class Server {
     }
     
 	public void install(ProgressDialog progressBar){
-		if(!serverInstalled()) {
-			UnzipperAsync unzipper = new UnzipperAsync(appContext,progressBar);		
-			unzipper.execute("data.zip",getAppDirectory() + "/","vesuvius.zip",getHttpDirectory() + "/www/");		
-		}
+		//this.progressBar = progressBar;		
+		Integer percentage = !Utilities.vesuviusInstalled() ? 50 : 100;		
+		UnzipperAsync serverUnzipper = new UnzipperAsync(appContext, progressBar, percentage, "UnzipServer");		
+		serverUnzipper.execute("data.zip", "assets", getAppDirectory()+"/");	
+		
 	}
 	
 	public void copyFiles(){		
@@ -57,74 +58,30 @@ public class Server {
 		restoreConfiguration("lighttpd.conf", getHttpDirectory() + "/conf/");
 		restoreConfiguration("php.ini", getHttpDirectory() + "/conf/");
 		restoreConfiguration("mysql.ini", getHttpDirectory() + "/conf/");
-		restoreConfiguration("create_database.php", getHttpDirectory() + "/www/scripts/");
+		restoreConfiguration("database_operations.php", getHttpDirectory() + "/www/scripts/");
 		restoreConfiguration("timezones.sql", getHttpDirectory() + "/www/scripts/");
 		
 		File tempFolder = new File(getHttpDirectory() + "/tmp/");
 		Utilities.deleteFolder(tempFolder);
-	}
+	}	
 	
-	public void afterInstall(final ProgressDialog progressDialog){			 
+	public void update(ProgressDialog progressBar){
+		//this.progressBar = progressBar;
+					
+		DownloaderAsync vesuviusDownloader = new DownloaderAsync(appContext, progressBar, 50, "DownloadVesuvius");		
+		vesuviusDownloader.execute("https://github.com/vpowerrc/vesuvius/archive/master.zip",getHttpDirectory() + "/www/vesuvius-master.zip");	
 		
-		this.progressDialog = progressDialog;
-		
-		new Thread(new Runnable() {
-	       
-			public void run() {   
-				
-				copyFiles();
-				setPermission();		
-				
-				Utilities.writeSahanaConf();		
-				Utilities.convertHtacessToLighttpd();
-				
-				try {
-					if (!Server.getInstance().isServerRunning()){
-						Server.getInstance().start();	        
-					}
-				} catch (IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				
-				try {
-					while (!Server.getInstance().isServerRunning()) {    	                           
-					    Thread.sleep(100); 				    
-					}
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} 		
-									
-				Utilities.createDatabase();
-				Log.e(TAG, "php script processed");
-				((Activity) appContext).runOnUiThread(new Runnable() {  
-                    @Override
-                    public void run() {
-                    	progressDialog.dismiss();	        	
-	        	    }
-                });		            
-	        }
-		}).start();	
-		
-	}
-	
+	}		
 	
 	public String getAppDirectory() {
-
 		return appContext.getApplicationInfo().dataDir;
-
 	}
 	
 	public String getHttpDirectory() {
-
-		return android.os.Environment.getExternalStorageDirectory().getPath()+ "/htdocs";
-
+		return android.os.Environment.getExternalStorageDirectory().getPath()+ "/vesuvius_server";
 	}
 	
-	public boolean serverInstalled() {
-
-		
+	public boolean serverInstalled() {		
 		
 		File mPhp = new File(getAppDirectory() + "/php-cgi");
 		File mMySql = new File(getAppDirectory() + "/mysqld");
@@ -140,10 +97,7 @@ public class Server {
 			return false;
 		
 		}
-	}
-	
-	
-	
+	}		
 	
 	protected boolean isServerRunning() throws IOException {
 		InputStream is;
@@ -159,7 +113,6 @@ public class Server {
 					isRunning = true;
 					break;
 				}
-
 			}
 			is.close();
 			bf.close();
@@ -211,10 +164,13 @@ public class Server {
 		if (!mFile.exists())
 			mFile.mkdir();	
 		
-		mFile = new File(getHttpDirectory() + "/www/scripts/");
+		mFile = new File(getHttpDirectory() + "/db_exports/");
 		if (!mFile.exists())
 			mFile.mkdir();
 		
+		mFile = new File(getHttpDirectory() + "/www/scripts/");
+		if (!mFile.exists())
+			mFile.mkdir();		
 		
 	}
 	
@@ -255,16 +211,8 @@ public class Server {
 				Log.e(TAG, "Unable to copy " + fileName + " from assets", e);
 
 			}
-			
-			
-		
-
-	}
-	
-	
-
-	
-	
+							
+	}	
 
 	public void start() {
 		// TODO Auto-generated method stub
@@ -300,8 +248,7 @@ public class Server {
 
 	public void stop() {
 		// TODO Auto-generated method stub
-		System.out.println("OFF");
-		
+		System.out.println("OFF");		
 		/**
 		 * 
 		 * Kill the Running Instances of all called process name. PHP is

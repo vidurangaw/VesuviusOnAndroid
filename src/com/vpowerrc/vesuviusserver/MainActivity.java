@@ -24,9 +24,9 @@ import android.widget.ToggleButton;
 public class MainActivity extends ActionBarActivity{
 	
 
-	public Context appContext = this;	
-	public ProgressDialog progressBar;	
+	public Context appContext = this;		
 	public static String TAG = "Vesuvius Server";
+	
 	
 	/** Called when the activity is first created. */
 	@Override
@@ -65,7 +65,7 @@ public class MainActivity extends ActionBarActivity{
 				                	runOnUiThread(new Runnable() {  
 				                        @Override
 				                        public void run() {
-				                        	TextView text = (TextView) findViewById(R.id.textView2);
+				                        	TextView text = (TextView) findViewById(R.id.statusText);
 					                        text.setText("Vesuvius is running on \n\nhttp://"+ipAddress+":"+Server.serverPort+"/vesuvius");
 					                        ToggleButton toggle = (ToggleButton) findViewById(R.id.serverToggleButton); 
 					                        toggle.setChecked(true);			
@@ -91,10 +91,7 @@ public class MainActivity extends ActionBarActivity{
 		//StrictMode.ThreadPolicy policy = new StrictMode.ThreadPolicy.Builder().permitAll().build();
 		//StrictMode.setThreadPolicy(policy);
 		
-				
-		if(!Server.getInstance().serverInstalled()){			
-			Server.getInstance().install(progressBar);
-		}
+		
 		
 					
 		//ActionBar gets initiated

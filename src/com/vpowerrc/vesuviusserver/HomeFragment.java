@@ -18,24 +18,38 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 
-public class HomeFragment extends Fragment {
+public class HomeFragment extends Fragment {	
 	
-	View view;
 	@Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {		
-		
+		super.onCreate(savedInstanceState);
         // inflate the layout for this fragment    
-    	view = inflater.inflate(R.layout.fragment_home, container, false);    	
+    	final View view = inflater.inflate(R.layout.fragment_home, container, false);    	
     	  
     	ToggleButton toggle = (ToggleButton) view.findViewById(R.id.serverToggleButton);   
-    	   
+    	
+    	
+    			
+		if(!Server.getInstance().serverInstalled()){
+			
+			ProgressDialog progressBar = new ProgressDialog(getActivity());
+			progressBar.setMessage("Initializing Vesuvius server for the first time...");
+			progressBar.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
+			progressBar.setProgress(0);
+			progressBar.setProgressNumberFormat(null);
+			progressBar.setCancelable(false);
+			progressBar.setCanceledOnTouchOutside(false);
+			progressBar.show();
+			Server.getInstance().install(progressBar);
+		}
+			
     	// create notification  	
 		final Intent notificationIntent = new Intent(getActivity(), VesuviusNotificationService.class);   
 					    	    	
     	toggle.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
     	    
     		public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-    			Log.e(Server.TAG, "Clicked");
+    			
     			final ProgressDialog progressDialog = ProgressDialog.show(getActivity(), "Please wait","processing", true);
     	        if (isChecked) {    	          	    	
     	        	               	        	       	
@@ -77,8 +91,8 @@ public class HomeFragment extends Fragment {
 	                        getActivity().runOnUiThread(new Runnable() {  
 	                            @Override
 	                            public void run() {
-	                            	TextView text = (TextView) view.findViewById(R.id.textView2);
-	    	                        text.setText("Vesuvius is running on \n\nhttp://"+ipAddress+":"+Server.serverPort+"/vesuvius");
+	                            	TextView text = (TextView) view.findViewById(R.id.statusText);
+	    	                        text.setText("Vesuvius is running on \nhttp://"+ipAddress+":"+Server.serverPort+"/vesuvius");
 	    	                        getActivity().startService(notificationIntent);    	 
 	                            }
 	                        });
@@ -120,7 +134,7 @@ public class HomeFragment extends Fragment {
 							getActivity().runOnUiThread(new Runnable() {  
 	                            @Override
 	                            public void run() {
-									TextView text = (TextView) view.findViewById(R.id.textView2);
+									TextView text = (TextView) view.findViewById(R.id.statusText);
 					                text.setText("");
 					                progressDialog.dismiss();
 	                            }

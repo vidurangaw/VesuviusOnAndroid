@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Vesuvius Server</string>
+    <string name="hello_world">Hello world!</string>
+    <color name="white_opaque">#ffffffff</color>
+    <color name="custom_blue">#ff316b9c</color>
+    <color name="custom_grey">#fff7f7f7</color>
+	<string name="vesuvius_name">Sahana Vesuvius<sup><small>\u2122</small></sup></string>
+</resources>

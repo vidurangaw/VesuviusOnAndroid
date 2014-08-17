@@ -54,13 +54,13 @@ public class Utilities {
 	
 	public static String getHttpDirectory() {
 
-		return android.os.Environment.getExternalStorageDirectory().getPath()+ "/htdocs/";
+		return android.os.Environment.getExternalStorageDirectory().getPath()+ "/vesuvius_server/";
 
 	}
 	
 	public static String getVesuviusDirectory() {
 
-		return android.os.Environment.getExternalStorageDirectory().getPath()+ "/htdocs/www/vesuvius-master/vesuvius/";
+		return getHttpDirectory()+"www/vesuvius/vesuvius/";
 
 	}
 	
@@ -78,13 +78,10 @@ public class Utilities {
 		}
 	}
 			
-	public static void convertHtacessToLighttpd(){
-		
+	public static void convertHtacessToLighttpd(){		
 		
 		File htaccessFile = new File(getVesuviusDirectory()+"www/htaccess.example");
-		File lighttpdConfFile = new File(getHttpDirectory()+"conf/lighttpd.conf");
-		
-		
+		File lighttpdConfFile = new File(getHttpDirectory()+"conf/lighttpd.conf");			
 		
 		if (htaccessFile.exists()){			
 			try {
@@ -153,7 +150,7 @@ public class Utilities {
 	            bw.write(repeatOutputText+")\n\n");	            
 	            
 	            
-	            bw.write("alias.url += (\"/vesuvius\" => http_dir + \"/www/vesuvius-master/vesuvius/www\")");
+	            bw.write("alias.url += (\"/vesuvius\" => http_dir + \"/www/vesuvius/vesuvius/www\")");
 	            	            
 	            br.close();            
 	            bw.close();
@@ -170,7 +167,7 @@ public class Utilities {
 		
 		
 	}
-	public static void createDatabase(){
+	public static void importDatabase(){
 		
 	/*	
 		String url = "http://localhost:8080/scripts/create_database.php";
@@ -185,7 +182,7 @@ public class Utilities {
 	*/		
 		try {
 			
-	        URL phpUrl = new URL("http://localhost:"+Server.serverPort+"/scripts/create_database.php");
+	        URL phpUrl = new URL("http://localhost:"+Server.serverPort+"/scripts/database_operations.php?action=import");
 	        URLConnection urlCon = phpUrl.openConnection();
 	        BufferedReader br = new BufferedReader(new InputStreamReader(urlCon.getInputStream()));
 	        String line;
@@ -198,6 +195,38 @@ public class Utilities {
 			e.printStackTrace();
 	    }					
 	}
+	
+	public static String exportDatabase(){
+		
+		/*	
+			String url = "http://localhost:8080/scripts/create_database.php";
+			HttpClient client = new DefaultHttpClient();
+		
+			try {
+			  client.execute(new HttpGet(url));
+			  Log.e(TAG, "create db1");
+			}  catch(IOException e) {
+			 
+			}	
+		*/	String linee = null;	
+			try {
+				
+		        URL phpUrl = new URL("http://localhost:"+Server.serverPort+"/scripts/database_operations.php?action=export");
+		        URLConnection urlCon = phpUrl.openConnection();
+		        BufferedReader br = new BufferedReader(new InputStreamReader(urlCon.getInputStream()));
+		        linee = br.readLine();
+		        String line;
+		        while ((line = br.readLine()) != null){
+		        	Log.e(TAG,line);
+		        }        
+		        br.close();
+		     } 
+			catch(Exception e) {
+				e.printStackTrace();
+		    }		
+        	Log.e(TAG,"X "+linee);
+			return linee;
+		}
 	
 	public static void deleteFolder(File folder) {
 	    File[] files = folder.listFiles();
@@ -254,8 +283,8 @@ public class Utilities {
 	                if (line.contains("$conf['db_user'] =")) {	                	
 	                	line = line.replace("\"\"", "\"root\"");
 	                }
-	                if (line.contains("$conf['base_uuid'] = \"vesuvius.sahanafoundation.org/\"")) {
-	                	line = "$conf['base_uuid'] = $_SERVER['SERVER_NAME'].\":\".$_SERVER['SERVER_PORT'].\"/vesuvius/\";";	                
+	                if (line.contains("$conf['base_uuid'] = \"vesuvius.sahanafoundation.org/\"")) {	                	
+	                	line = "$conf['base_uuid'] = $_SERVER['SERVER_NAME'].\":\".$_SERVER['SERVER_PORT'].\"/vesuvius/\";";
 	                }
 	                if (line.contains("#$conf['https']")) {
 	                	line = line.replace("#", "");	                

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+   <dimen name="h1_text_size">50sp</dimen>
+   <dimen name="h2_text_size">35sp</dimen>
+   <dimen name="h3_text_size">32sp</dimen>
+   <dimen name="text_size">25sp</dimen>
+   <dimen name="button_text_size">25sp</dimen>
+   <dimen name="button_width">300dp</dimen>  
+   <dimen name="margin_size">20sp</dimen>
+</resources>
