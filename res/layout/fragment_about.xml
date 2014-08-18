@@ -5,33 +5,79 @@
     android:orientation="vertical"
     android:weightSum="1">
     
+    
+    <RelativeLayout 
+    android:layout_width="match_parent"
+    android:layout_height="0dp"
+    android:layout_marginTop="@dimen/margin_size"
+    android:layout_weight=".35" >
+
+	    <ImageView
+	        android:id="@+id/imageView2"
+	        android:layout_width="match_parent"
+	        android:layout_height="match_parent"
+	        android:layout_alignParentTop="true"
+	        android:layout_centerHorizontal="true"
+	        android:layout_marginTop="@dimen/margin_size"
+	        android:src="@drawable/vesuvius_logo" />
+
+	</RelativeLayout>
+	
     <RelativeLayout 
     android:layout_width="match_parent"
     android:layout_marginTop="@dimen/margin_size"
     android:layout_height="0dp"
-    android:layout_weight=".40" >
+    android:layout_weight=".52" >
+		
+        <TextView
+	        android:id="@+id/textView1"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_centerHorizontal="true"
+	        android:layout_marginTop="@dimen/margin_size"
+	        android:text="@string/vesuvius_name"
+	        android:textAlignment="center"
+	        android:textColor="@color/custom_blue"
+	        android:textSize="@dimen/h1_text_size" />
 
 	    <TextView
-            android:id="@+id/statusText"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@+id/textView1"
-            android:layout_centerHorizontal="true"
-            android:layout_marginTop="@dimen/margin_size"
-            android:gravity="center"
-            android:text="The Mission of the Sahana Software Foundation is to help alleviate human suffering by giving emergency managers, disaster response professionals and communities access to the information that they need to better prepare for and respond to disasters through the development and promotion of free and open source software and open standards. "
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:textSize="@dimen/text_size" />
+	        android:id="@+id/textView2"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_below="@+id/textView1"
+	        android:layout_centerHorizontal="true"
+	        android:text="Portable Web Server"
+	        android:textAlignment="center"
+	        android:textColor="@color/custom_blue"
+	        android:textSize="@dimen/h2_text_size" />
+
+	    <TextView
+	        android:id="@+id/vesuvius_link"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_centerHorizontal="true"
+	        android:layout_marginTop="@dimen/margin_size"
+	        android:layout_below="@+id/textView2"
+	        android:autoLink="web"
+	        android:linksClickable="true"
+	        android:text="@string/vesuvius_link" />
+
+	    <TextView
+	        android:id="@+id/statusText"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:layout_centerHorizontal="true"
+	        android:layout_centerVertical="true"
+	        android:gravity="center"
+	        android:paddingLeft="@dimen/margin_size"
+	        android:paddingRight="@dimen/margin_size"
+	        android:text="Copyright \u00A9  Sahana Foundation 2004 - 2014 "
+	        android:textAppearance="?android:attr/textAppearanceMedium"
+	        android:textSize="@dimen/text_size" />
 
 	</RelativeLayout>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight=".47" >
-    
-	  
-	</RelativeLayout>
+
 	
 	<RelativeLayout 
 	    android:layout_width="match_parent"
